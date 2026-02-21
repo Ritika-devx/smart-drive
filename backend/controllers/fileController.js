@@ -1,9 +1,10 @@
 const multer = require("multer");
 const path = require("path");
 
+// Storage setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "backend/uploads/");
+  cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + "-" + file.originalname;
@@ -11,6 +12,7 @@ const storage = multer.diskStorage({
   },
 });
 
+// File type 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|pdf/;
   const extName = allowedTypes.test(
@@ -24,6 +26,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Multer config
 const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
