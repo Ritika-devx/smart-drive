@@ -1,20 +1,21 @@
 const multer = require("multer");
 const path = require("path");
 
-// Storage setup
+// Storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-  cb(null, "uploads/");
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + "-" + file.originalname;
     cb(null, uniqueName);
-  },
+  }
 });
 
-// File type 
+// File type filter
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|pdf/;
+
   const extName = allowedTypes.test(
     path.extname(file.originalname).toLowerCase()
   );
@@ -26,11 +27,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer config
+// Multer configuration
 const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: fileFilter,
+  fileFilter: fileFilter
 });
 
 module.exports = upload;
