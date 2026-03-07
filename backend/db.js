@@ -3,7 +3,7 @@ const mysql = require("mysql2");
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "@1234",
+  password: "",   // keep empty
   database: "cloud_storage",
   port: 3006
 });
