@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const fileRoutes = require("./routes/files");
 const db = require("./db");   // important
+const multer = require("multer");
 
 const app = express();
 
@@ -16,4 +17,22 @@ app.get("/", (req, res) => {
 
 app.listen(5000, () => {
   console.log("Server running at http://localhost:5000");
+});
+app.use((err, req, res, next) => {
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+
+  if (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+
+  next();
 });

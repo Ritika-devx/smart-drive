@@ -3,9 +3,9 @@ const mysql = require("mysql2");
 const db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "Ritika2006.",
+  password: "@1234",
   database: "cloud_storage",
-  port: 3306
+  port: 3006
 });
 
 db.connect((err) => {
