@@ -78,27 +78,34 @@ const fs = require("fs");
 const crypto = require("crypto");
 const db = require("../db.js");
 
-router.get("/files",(req,res)=>{
-    const query="Select id ,filename,original_name,size,type,uploaded_at from files";
-    db.query(query,(err,results)=>{
-        if(err){
-            return res.status(500).json({
-                success:false,
-                message:"Database error while fetching files",
-                error:err.message,
-            });
-        }
-        res.status(200).json({
-            success:true,
-            message:"Files fetched successfully",
-            files:results,
-        });
-    })
-})
 
+//  GET all files
+router.get("/files", (req, res) => {
+  const query = "SELECT id, filename, original_name, size, type, uploaded_at FROM files";
+
+  db.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Database error while fetching files",
+        error: err.message,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Files fetched successfully",
+      files: results,
+    });
+  });
+});
+
+
+//  POST upload with duplicate check
 router.post("/upload", upload.array("file", 5), (req, res) => {
   try {
 
+    //  No file uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
@@ -107,6 +114,7 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
     }
 
     const fileDetails = [];
+    let processed = 0;
 
     req.files.forEach((file) => {
 
@@ -117,42 +125,73 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
         .update(fileBuffer)
         .digest("hex");
 
-      const query = `
-        INSERT INTO files (filename, original_name, size, type, hash)
-        VALUES (?, ?, ?, ?, ?)
-      `;
+      // Check duplicate
+      const checkQuery = "SELECT * FROM files WHERE hash = ?";
 
-      db.query(
-        query,
-        [
-          file.filename,
-          file.originalname,
-          file.size,
-          file.mimetype,
-          hash,
-        ],
-        (err) => {
-          if (err) {
-            console.error("Database insert error:", err);
-          }
+      db.query(checkQuery, [hash], (err, results) => {
+
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            message: "Database error",
+          });
         }
-      );
 
-      fileDetails.push({
-        filename: file.filename,
-        originalname: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        hash: hash,
+        //  If duplicate
+        if (results.length > 0) {
+
+          fileDetails.push({
+            filename: file.filename,
+            originalname: file.originalname,
+            message: "Duplicate file",
+          });
+
+        } else {
+
+          // Insert new file
+          const insertQuery = `
+            INSERT INTO files (filename, original_name, size, type, hash)
+            VALUES (?, ?, ?, ?, ?)
+          `;
+
+          db.query(
+            insertQuery,
+            [
+              file.filename,
+              file.originalname,
+              file.size,
+              file.mimetype,
+              hash,
+            ],
+            (err) => {
+              if (err) {
+                console.error("Insert error:", err);
+              }
+            }
+          );
+
+          fileDetails.push({
+            filename: file.filename,
+            originalname: file.originalname,
+            message: "Uploaded successfully",
+          });
+        }
+
+        processed++;
+
+        // Send response after all files processed
+        if (processed === req.files.length) {
+          return res.status(200).json({
+            success: true,
+            message: "Upload process completed",
+            totalFiles: fileDetails.length,
+            files: fileDetails,
+          });
+        }
+
       });
 
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "File uploaded successfully",
-      totalFiles: fileDetails.length,
-      files: fileDetails,
     });
 
   } catch (error) {
