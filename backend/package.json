@@ -12,11 +12,13 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "multer": "^2.0.2",
-    "mysql2": "^3.18.2"
+    "mysql2": "^3.18.2",
+    "prisma": "^6.19.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

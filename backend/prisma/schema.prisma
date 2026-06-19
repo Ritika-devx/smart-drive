@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model files {
+  id             Int       @id @default(autoincrement())
+  filename       String?   @db.VarChar(255)
+  original_name  String?   @db.VarChar(255)
+  size           BigInt?
+  type           String?   @db.VarChar(50)
+  upload_date    DateTime? @default(now()) @db.Timestamp(0)
+  last_accessed  DateTime? @db.Timestamp(0)
+  hash           String?   @db.VarChar(255)
+  duplicate_flag Boolean?  @default(false)
+  suggestion     String?   @db.VarChar(50)
+}
+model activity_logs {
+  id         Int      @id @default(autoincrement())
+  action     String
+  file_name  String?
+  created_at DateTime @default(now())
+}

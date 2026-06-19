@@ -69,14 +69,13 @@
 // module.exports=router;
 
 
-
-
 const express = require("express");
 const router = express.Router();
 const upload = require("../controllers/fileController");
 const fs = require("fs");
 const crypto = require("crypto");
 const db = require("../db.js");
+const logActivity = require("../services/logService");
 
 
 //  GET all files
@@ -101,11 +100,11 @@ router.get("/files", (req, res) => {
 });
 
 
-//  POST upload with duplicate check
+//  POST upload with duplicate check + ERROR HANDLING (YOUR PART)
 router.post("/upload", upload.array("file", 5), (req, res) => {
   try {
 
-    //  No file uploaded
+    // ❌ No file uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
@@ -118,7 +117,31 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
 
     req.files.forEach((file) => {
 
-      const fileBuffer = fs.readFileSync(file.path);
+      const filePath = file.path;
+
+      // ❌ File not found
+      if (!fs.existsSync(filePath)) {
+        fileDetails.push({
+          filename: file.filename,
+          originalname: file.originalname,
+          status: "error",
+          message: "File not found on server",
+        });
+
+        processed++;
+
+        if (processed === req.files.length) {
+          return res.status(500).json({
+            success: false,
+            message: "File processing error",
+            files: fileDetails,
+          });
+        }
+
+        return;
+      }
+
+      const fileBuffer = fs.readFileSync(filePath);
 
       const hash = crypto
         .createHash("sha256")
@@ -130,22 +153,35 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
 
       db.query(checkQuery, [hash], (err, results) => {
 
+        // ❌ DB error
         if (err) {
-          console.error(err);
           return res.status(500).json({
             success: false,
-            message: "Database error",
+            message: "Database error while processing file",
+            error: err.message,
           });
         }
 
-        //  If duplicate
+        // 🔁 Duplicate file
         if (results.length > 0) {
 
           fileDetails.push({
             filename: file.filename,
             originalname: file.originalname,
+            status: "duplicate",
             message: "Duplicate file",
           });
+
+          processed++;
+
+          if (processed === req.files.length) {
+            return res.status(200).json({
+              success: true,
+              message: "Files processed successfully",
+              totalFiles: fileDetails.length,
+              files: fileDetails,
+            });
+          }
 
         } else {
 
@@ -165,29 +201,39 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
               hash,
             ],
             (err) => {
+
               if (err) {
-                console.error("Insert error:", err);
+                fileDetails.push({
+                  filename: file.filename,
+                  originalname: file.originalname,
+                  status: "error",
+                  message: "Database insert failed",
+                });
+              } else {
+
+  logActivity("UPLOAD", file.originalname);
+
+  fileDetails.push({
+    filename: file.filename,
+    originalname: file.originalname,
+    status: "uploaded",
+    message: "Uploaded successfully",
+  });
+
+}
+ processed++;
+
+  if (processed === req.files.length) {
+   return res.status(200).json({
+    success: true,
+   message: "Files processed successfully",
+   totalFiles: fileDetails.length,
+    files: fileDetails,
+                });
               }
+
             }
           );
-
-          fileDetails.push({
-            filename: file.filename,
-            originalname: file.originalname,
-            message: "Uploaded successfully",
-          });
-        }
-
-        processed++;
-
-        // Send response after all files processed
-        if (processed === req.files.length) {
-          return res.status(200).json({
-            success: true,
-            message: "Upload process completed",
-            totalFiles: fileDetails.length,
-            files: fileDetails,
-          });
         }
 
       });
@@ -195,6 +241,23 @@ router.post("/upload", upload.array("file", 5), (req, res) => {
     });
 
   } catch (error) {
+
+    // ❌ File size error
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        success: false,
+        message: "File size exceeds 5MB limit",
+      });
+    }
+
+    // ❌ File type error
+    if (error.message.includes("Only images")) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type (only jpg, png, pdf allowed)",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Server error while uploading file",
