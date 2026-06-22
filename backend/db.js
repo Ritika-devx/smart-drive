@@ -1,19 +1,25 @@
 require("dotenv").config();
 const mysql = require("mysql2");
 
+// Create MySQL connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+<<<<<<< HEAD
   port: 3006, // default MySQL port
+=======
+  port: process.env.DB_PORT
+>>>>>>> 2fc6e24 (Completed backend phase with Prisma integration and file management APIs)
 });
 
+// Connect to MySQL
 db.connect((err) => {
   if (err) {
     console.log("DB connection failed:", err);
   } else {
-    console.log("Connected to MySQL");
+    console.log("Connected to MySQL successfully");
   }
 });
 
