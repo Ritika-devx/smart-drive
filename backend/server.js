@@ -71,13 +71,13 @@ app.use("/api", fileRoutes);
 app.use("/api", dashboardRoutes);
 app.use("/api", largestFilesRoutes);
 app.use("/api", fileManagementRoutes);
-<<<<<<< HEAD
+
 app.use("/api", analysisRoutes);
-=======
+
 app.use("/api", suggestionRoutes);
 app.use("/api", searchRoutes);
 app.use("/api", filterRoutes);
->>>>>>> 2fc6e24 (Completed backend phase with Prisma integration and file management APIs)
+
 
 // Home route
 app.get("/", (req, res) => {
