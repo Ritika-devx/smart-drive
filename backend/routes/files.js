@@ -5,6 +5,7 @@ const upload = require("../middleware/uploadMiddleware");
 const fs = require("fs");
 const prisma = require("../utils/prismaClient");
 const logActivity = require("../services/logService");
+
 const {
   generateFileHash,
   findDuplicateByHash,
@@ -15,11 +16,10 @@ router.get("/files", async (req, res) => {
   try {
     const files = await prisma.files.findMany({
       orderBy: {
-        upload_date: "desc",
+        uploaded_at: "desc",
       },
     });
 
-    // Convert BigInt to Number
     const formattedFiles = files.map((file) => ({
       ...file,
       size: Number(file.size || 0),
@@ -54,7 +54,6 @@ router.post("/upload", upload.array("file", 5), async (req, res) => {
     for (const file of req.files) {
       const filePath = file.path;
 
-      // Check if file exists
       if (!fs.existsSync(filePath)) {
         fileDetails.push({
           filename: file.filename,
@@ -66,51 +65,30 @@ router.post("/upload", upload.array("file", 5), async (req, res) => {
       }
 
       try {
-        // Generate file hash
         const hash = generateFileHash(filePath);
 
-        // Check duplicate
         const duplicate = await findDuplicateByHash(hash);
 
-        if (duplicate) {
-          await prisma.files.create({
-            data: {
-              filename: file.filename,
-              original_name: file.originalname,
-              size: BigInt(file.size),
-              type: file.mimetype,
-              hash: hash,
-              duplicate_flag: true,
-            },
-          });
-
-          fileDetails.push({
+        await prisma.files.create({
+          data: {
             filename: file.filename,
-            originalname: file.originalname,
-            status: "duplicate",
-            message: `Duplicate of file ID ${duplicate.id}`,
-          });
-        } else {
-          await prisma.files.create({
-            data: {
-              filename: file.filename,
-              original_name: file.originalname,
-              size: BigInt(file.size),
-              type: file.mimetype,
-              hash: hash,
-              duplicate_flag: false,
-            },
-          });
+            original_name: file.originalname,
+            size: file.size,
+            type: file.mimetype,
+            hash: hash,
+          },
+        });
 
-          await logActivity("UPLOAD", file.originalname);
+        await logActivity("UPLOAD", file.originalname);
 
-          fileDetails.push({
-            filename: file.filename,
-            originalname: file.originalname,
-            status: "uploaded",
-            message: "Uploaded successfully",
-          });
-        }
+        fileDetails.push({
+          filename: file.filename,
+          originalname: file.originalname,
+          status: duplicate ? "duplicate" : "uploaded",
+          message: duplicate
+            ? `Duplicate of file ID ${duplicate.id}`
+            : "Uploaded successfully",
+        });
       } catch (innerError) {
         fileDetails.push({
           filename: file.filename,

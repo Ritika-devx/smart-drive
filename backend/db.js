@@ -8,7 +8,7 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 
-  port: 3006, // default MySQL port
+  port: 3306, // default MySQL port
 
   port: process.env.DB_PORT
 

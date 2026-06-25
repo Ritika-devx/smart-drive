@@ -51,7 +51,7 @@ router.get("/duplicates", async (req, res) => {
   try {
     const files = await prisma.files.findMany({
       where: { hash: { not: null } },
-      orderBy: { upload_date: "asc" },
+      orderBy: { uploaded_at: "asc" },
     });
 
     const groups = {};
@@ -70,7 +70,7 @@ router.get("/duplicates", async (req, res) => {
           filename: f.filename,
           original_name: f.original_name,
           size: Number(f.size || 0),
-          upload_date: f.upload_date,
+          uploaded_at: f.uploaded_at,
         })),
       }));
 
@@ -173,20 +173,19 @@ router.get("/recent-files", async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
 
     const recentFiles = await prisma.files.findMany({
-      orderBy: { upload_date: "desc" },
+      orderBy: { uploaded_at: "desc" },
       take: limit,
     });
 
     const formatted = recentFiles.map((f) => ({
-      id: f.id,
-      filename: f.filename,
-      original_name: f.original_name,
-      size: Number(f.size || 0),
-      type: f.type,
-      category: classifyFileType(f.type, f.original_name || f.filename || ""),
-      upload_date: f.upload_date,
-      duplicate_flag: f.duplicate_flag,
-    }));
+  id: f.id,
+  filename: f.filename,
+  original_name: f.original_name,
+  size: Number(f.size || 0),
+  type: f.type,
+  category: classifyFileType(f.type, f.original_name || f.filename || ""),
+  uploaded_at: f.uploaded_at,
+}));
 
     res.status(200).json({
       success: true,

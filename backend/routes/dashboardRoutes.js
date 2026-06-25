@@ -14,11 +14,7 @@ router.get("/dashboard", async (req, res) => {
       }
     });
 
-    const duplicateFiles = await prisma.files.count({
-      where: {
-        duplicate_flag: true
-      }
-    });
+    const duplicateFiles = 0;
 
    res.status(200).json({
   success: true,

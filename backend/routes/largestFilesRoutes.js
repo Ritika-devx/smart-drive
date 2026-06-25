@@ -19,7 +19,7 @@ router.get("/largest-files", async (req, res) => {
       original_name: file.original_name,
       size: Number(file.size),
       type: file.type,
-      upload_date: file.upload_date
+      uploaded_at: file.uploaded_at
     }));
 
     res.status(200).json({
