@@ -1,0 +1,227 @@
+/* ============================================================
+   SMART DRIVE — DESIGN TOKENS (LIGHT THEME)
+   Same structure as before: cards, charts, badges, animations.
+   Swapped dark-glass surface for a clean light dashboard look.
+   ============================================================ */
+
+:root {
+  /* ---- Surface ---- */
+  --sd-bg-0: #f5f6fb;                 /* page base */
+  --sd-bg-1: #ffffff;                 /* panel base */
+  --sd-bg-gradient: none;
+
+  /* ---- Card surface (was "glass") ---- */
+  --sd-glass: #ffffff;
+  --sd-glass-strong: #f2f3fa;
+  --sd-glass-border: #e7e8f2;
+  --sd-glass-border-hover: #d3d5ea;
+
+  /* ---- Accents (unchanged — same meaning, works on light bg too) ---- */
+  --sd-blue: #4f6ef7;
+  --sd-blue-soft: #7d97ff;
+  --sd-violet: #9333ea;
+  --sd-violet-soft: #c084fc;
+  --sd-cyan: #0891b2;
+  --sd-amber: #d97706;      /* duplicate */
+  --sd-rose: #e11d48;       /* large / danger */
+  --sd-green: #16a34a;      /* healthy / normal */
+  --sd-slate: #64748b;      /* old / neutral */
+
+  --sd-grad-primary: linear-gradient(135deg, var(--sd-blue) 0%, var(--sd-violet) 100%);
+  --sd-grad-ring: conic-gradient(from 180deg, var(--sd-blue), var(--sd-violet), var(--sd-cyan), var(--sd-blue));
+
+  /* ---- Text ---- */
+  --sd-text-hi: #14161f;
+  --sd-text-mid: #55596e;
+  --sd-text-low: #8a8ea3;
+
+  /* ---- Type ---- */
+  --sd-font-display: 'Space Grotesk', 'Sora', sans-serif;
+  --sd-font-body: 'Inter', sans-serif;
+  --sd-font-mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+
+  /* ---- Radius / shadow ---- */
+  --sd-r-lg: 18px;
+  --sd-r-md: 12px;
+  --sd-r-sm: 9px;
+  --sd-shadow-card: 0 2px 14px rgba(20, 22, 40, 0.06);
+  --sd-shadow-glow-blue: 0 6px 16px rgba(79, 110, 247, 0.28);
+  --sd-shadow-glow-violet: 0 6px 16px rgba(147, 51, 234, 0.22);
+
+  --sd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+* { box-sizing: border-box; }
+
+.sd-root {
+  margin: 0;
+  background: var(--sd-bg-0);
+  color: var(--sd-text-hi);
+  font-family: var(--sd-font-body);
+  min-height: 100vh;
+}
+
+/* ---- Generic card ---- */
+.sd-card {
+  background: var(--sd-glass);
+  border: 1px solid var(--sd-glass-border);
+  border-radius: var(--sd-r-lg);
+  box-shadow: var(--sd-shadow-card);
+  transition: border-color 0.3s var(--sd-ease), transform 0.3s var(--sd-ease), box-shadow 0.3s var(--sd-ease);
+}
+.sd-card:hover {
+  border-color: var(--sd-glass-border-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(20, 22, 40, 0.09);
+}
+
+.sd-eyebrow {
+  font-family: var(--sd-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sd-text-low);
+}
+
+.sd-h1 {
+  font-family: var(--sd-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--sd-text-hi);
+}
+
+.sd-mono { font-family: var(--sd-font-mono); }
+
+.sd-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.sd-scrollbar::-webkit-scrollbar-thumb { background: #d8dae8; border-radius: 8px; }
+
+/* ---- Badges ---- */
+.sd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--sd-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.sd-badge-normal   { color: var(--sd-green); background: rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.22); }
+.sd-badge-duplicate{ color: var(--sd-amber); background: rgba(217, 119, 6, 0.1); border-color: rgba(217, 119, 6, 0.22); }
+.sd-badge-old       { color: var(--sd-slate); background: rgba(100, 116, 139, 0.12); border-color: rgba(100, 116, 139, 0.25); }
+.sd-badge-large     { color: var(--sd-rose); background: rgba(225, 29, 72, 0.1); border-color: rgba(225, 29, 72, 0.22); }
+
+/* ---- Buttons ---- */
+.sd-btn {
+  font-family: var(--sd-font-body);
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: var(--sd-r-sm);
+  padding: 8px 14px;
+  border: 1px solid var(--sd-glass-border);
+  background: var(--sd-glass-strong);
+  color: var(--sd-text-hi);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s var(--sd-ease);
+}
+.sd-btn:hover { border-color: var(--sd-glass-border-hover); transform: translateY(-1px); }
+.sd-btn-primary { background: var(--sd-grad-primary); border: none; color: #fff; box-shadow: var(--sd-shadow-glow-blue); }
+.sd-btn-danger:hover { border-color: rgba(225, 29, 72, 0.4); color: var(--sd-rose); background: rgba(225, 29, 72, 0.06); }
+.sd-btn-ghost { background: transparent; border-color: transparent; }
+.sd-btn-ghost:hover { background: var(--sd-glass-strong); border-color: var(--sd-glass-border); }
+
+/* ---- Animations (unchanged) ---- */
+@keyframes sd-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sd-anim-in { animation: sd-fade-up 0.5s var(--sd-ease) both; }
+
+@keyframes sd-pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22,163,74,0.5); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(22,163,74,0); }
+}
+.sd-live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sd-green);
+  animation: sd-pulse-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes sd-bar-grow {
+  from { width: 0; }
+}
+.sd-bar-fill { animation: sd-bar-grow 1.1s var(--sd-ease) both; }
+
+/* ============================================================
+   DARK MODE — toggled via [data-theme="dark"] on .sd-root
+   Same variable names as the light theme above, so every
+   component (cards, badges, chart, buttons) repaints for free.
+   ============================================================ */
+
+.sd-root[data-theme='dark'] {
+  --sd-bg-0: #0a0c18;
+  --sd-bg-1: #0e1224;
+  --sd-glass: rgba(255, 255, 255, 0.045);
+  --sd-glass-strong: rgba(255, 255, 255, 0.07);
+  --sd-glass-border: rgba(255, 255, 255, 0.09);
+  --sd-glass-border-hover: rgba(255, 255, 255, 0.18);
+
+  --sd-blue: #5b7cff;
+  --sd-violet: #a855f7;
+  --sd-cyan: #2dd4e8;
+  --sd-amber: #f5a623;
+  --sd-rose: #fb5b7c;
+  --sd-green: #3ddc97;
+  --sd-slate: #7d84a8;
+
+  --sd-text-hi: #eef0fb;
+  --sd-text-mid: #b7bcdb;
+  --sd-text-low: #767c9e;
+
+  --sd-shadow-card: 0 8px 30px rgba(4, 6, 20, 0.55);
+  --sd-shadow-glow-blue: 0 0 24px rgba(91, 124, 255, 0.35);
+  --sd-shadow-glow-violet: 0 0 24px rgba(168, 85, 247, 0.3);
+
+  background: radial-gradient(120% 120% at 10% 0%, #171c3d 0%, #0a0c18 55%),
+              radial-gradient(90% 90% at 100% 100%, #1b0f33 0%, transparent 60%),
+              var(--sd-bg-0);
+}
+
+.sd-root[data-theme='dark'] .sd-card {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.sd-root[data-theme='dark'] .sd-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* theme toggle button */
+.sd-theme-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--sd-glass-border);
+  background: var(--sd-glass-strong);
+  color: var(--sd-text-mid);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: all 0.2s var(--sd-ease);
+}
+.sd-theme-toggle:hover {
+  border-color: var(--sd-glass-border-hover);
+  color: var(--sd-text-hi);
+}
