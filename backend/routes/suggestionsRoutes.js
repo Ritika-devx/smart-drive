@@ -1,11 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const prisma = require("../utils/prismaClient");
+const authMiddleware = require("../middleware/authMiddleware");
 const { getSuggestions } = require("../services/optimizationService");
 
-router.get("/suggestions", async (req, res) => {
+
+router.get("/suggestions", authMiddleware, async (req, res) => {
   try {
     const files = await prisma.files.findMany();
+    if (files.length === 0) {
+  return res.status(200).json({
+    success: true,
+    message: "No files available",
+    data: [],
+  });
+}
 
     const suggestions = files.map((file) => ({
       id: file.id,
