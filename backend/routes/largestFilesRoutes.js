@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const prisma = require("../utils/prismaClient");
-
+const authMiddleware = require("../middleware/authMiddleware");
 // GET /api/largest-files
-router.get("/largest-files", async (req, res) => {
+router.get("/largest-files", authMiddleware, async (req, res) => {
   try {
 
     const largestFiles = await prisma.files.findMany({
@@ -17,7 +17,7 @@ router.get("/largest-files", async (req, res) => {
       id: file.id,
       filename: file.filename,
       original_name: file.original_name,
-      size: Number(file.size),
+      size: Number(file.size || 0),
       type: file.type,
       uploaded_at: file.uploaded_at
     }));

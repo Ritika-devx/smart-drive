@@ -4,10 +4,10 @@ const prisma = require("../utils/prismaClient");
 const fs = require("fs");
 const path = require("path");
 const logActivity = require("../services/logService");
-
+const authMiddleware = require("../middleware/authMiddleware");
 
 // DELETE /api/delete/:id
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", authMiddleware, async (req, res) => {
 
   try {
 
@@ -66,10 +66,16 @@ router.delete("/delete/:id", async (req, res) => {
 
 
 // GET /api/download/:id
-router.get("/download/:id", async (req, res) => {
+router.get("/download/:id", authMiddleware, async (req, res) => {
   try {
 
     const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid file ID"
+  });
+}
 
     const file = await prisma.files.findUnique({
       where: {

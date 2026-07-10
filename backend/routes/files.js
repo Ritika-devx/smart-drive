@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const authMiddleware = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const fs = require("fs");
 const prisma = require("../utils/prismaClient");
@@ -12,7 +12,7 @@ const {
 } = require("../services/hashService");
 
 // GET all files
-router.get("/files", async (req, res) => {
+router.get("/files", authMiddleware, async (req, res) => {
   try {
     const files = await prisma.files.findMany({
       orderBy: {
@@ -40,7 +40,11 @@ router.get("/files", async (req, res) => {
 });
 
 // Upload files
-router.post("/upload", upload.array("file", 5), async (req, res) => {
+router.post(
+  "/upload",
+  authMiddleware,
+  upload.array("file", 5),
+  async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
