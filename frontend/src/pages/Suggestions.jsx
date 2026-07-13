@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 
 import SuggestionCard from "../components/suggestions/SuggestionCard";
+import SearchBar from "../components/suggestions/SearchBar";
 
 import { getSuggestions } from "../services/suggestionService";
 
 function Suggestions() {
 
   const [files, setFiles] = useState([]);
+  const [filteredFiles, setFilteredFiles] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -21,6 +22,7 @@ function Suggestions() {
         const data = await getSuggestions();
 
         setFiles(data.data);
+        setFilteredFiles(data.data);
 
       } catch (err) {
 
@@ -38,6 +40,20 @@ function Suggestions() {
 
   }, []);
 
+  const handleSearch = (results) => {
+
+    if (results === null) {
+
+      setFilteredFiles(files);
+
+    } else {
+
+      setFilteredFiles(results);
+
+    }
+
+  };
+
   if (loading) {
     return <h2>Loading suggestions...</h2>;
   }
@@ -52,13 +68,19 @@ function Suggestions() {
 
       <h1>Smart Optimization Suggestions</h1>
 
-      {files.length === 0 ? (
+      <SearchBar onSearch={handleSearch} />
+
+      <hr style={{ margin: "25px 0" }} />
+
+      <h2>Optimization Suggestions</h2>
+
+      {filteredFiles.length === 0 ? (
 
         <p>No suggestions available.</p>
 
       ) : (
 
-        files.map((file) => (
+        filteredFiles.map((file) => (
 
           <SuggestionCard
             key={file.id}

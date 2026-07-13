@@ -19,3 +19,27 @@ export const getSuggestions = async () => {
 
   }
 };
+
+// Search files
+export const searchFiles = async (name) => {
+  try {
+
+    const response = await api.get("/search", {
+      params: {
+        name,
+      },
+    });
+
+    return response.data;
+
+  } catch (error) {
+
+    throw (
+      error.response?.data || {
+        success: false,
+        message: "Unable to search files",
+      }
+    );
+
+  }
+};
