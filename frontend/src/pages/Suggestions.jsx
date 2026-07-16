@@ -1,56 +1,82 @@
 import { useEffect, useState } from "react";
 
+import api from "../services/api";
+
 import SuggestionCard from "../components/suggestions/SuggestionCard";
 import SearchBar from "../components/suggestions/SearchBar";
-
-import { getSuggestions } from "../services/suggestionService";
+import Filters from "../components/suggestions/Filters";
 
 function Suggestions() {
 
   const [files, setFiles] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("");
 
-    const fetchSuggestions = async () => {
+  // ==========================
+  // Fetch Files
+  // ==========================
+  const fetchFiles = async () => {
 
-      try {
+    try {
 
-        const data = await getSuggestions();
+      setLoading(true);
 
-        setFiles(data.data);
-        setFilteredFiles(data.data);
+      const response = await api.get("/search", {
+        params: {
+          name: searchTerm,
+          category: category,
+        },
+      });
 
-      } catch (err) {
+      setFiles(response.data.files);
+      setError("");
 
-        setError(err.message || "Failed to load suggestions");
+    } catch (err) {
 
-      } finally {
+      console.error(err);
 
-        setLoading(false);
+      setFiles([]);
 
-      }
+      setError(
+        err.response?.data?.message ||
+        "Failed to fetch files"
+      );
 
-    };
+    } finally {
 
-    fetchSuggestions();
-
-  }, []);
-
-  const handleSearch = (results) => {
-
-    if (results === null) {
-
-      setFilteredFiles(files);
-
-    } else {
-
-      setFilteredFiles(results);
+      setLoading(false);
 
     }
+
+  };
+
+  // ==========================
+  // Fetch whenever search/filter changes
+  // ==========================
+  useEffect(() => {
+
+    fetchFiles();
+
+  }, [searchTerm, category]);
+
+  // ==========================
+  // Search
+  // ==========================
+  const handleSearch = (value) => {
+
+    setSearchTerm(value);
+
+  };
+
+  // ==========================
+  // Filter
+  // ==========================
+  const handleFilter = (value) => {
+
+    setCategory(value);
 
   };
 
@@ -70,17 +96,19 @@ function Suggestions() {
 
       <SearchBar onSearch={handleSearch} />
 
+      <Filters onFilter={handleFilter} />
+
       <hr style={{ margin: "25px 0" }} />
 
       <h2>Optimization Suggestions</h2>
 
-      {filteredFiles.length === 0 ? (
+      {files.length === 0 ? (
 
-        <p>No suggestions available.</p>
+        <p>No files found.</p>
 
       ) : (
 
-        filteredFiles.map((file) => (
+        files.map((file) => (
 
           <SuggestionCard
             key={file.id}

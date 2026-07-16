@@ -3,7 +3,8 @@ const router = express.Router();
 
 const prisma = require("../utils/prismaClient");
 const authMiddleware = require("../middleware/authMiddleware");
-const { classifyFileType } = require("../services/hashService");
+const { classifyFileType, getSuggestions } = require("../services/hashService");
+const { getSuggestions: optimizationSuggestions } = require("../services/optimizationService");
 
 router.get("/filter", authMiddleware, async (req, res) => {
   try {
@@ -26,16 +27,20 @@ router.get("/filter", authMiddleware, async (req, res) => {
         file.original_name || file.filename || ""
       );
 
-      return (
-        fileCategory.toLowerCase() === category.toLowerCase()
-      );
+      return fileCategory.toLowerCase() === category.toLowerCase();
 
     });
 
+    const result = filteredFiles.map((file) => ({
+      id: file.id,
+      filename: file.original_name,
+      suggestions: optimizationSuggestions(file),
+    }));
+
     res.status(200).json({
       success: true,
-      totalFiles: filteredFiles.length,
-      files: filteredFiles,
+      totalFiles: result.length,
+      files: result,
     });
 
   } catch (error) {

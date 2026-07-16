@@ -4,27 +4,63 @@ const router = express.Router();
 const prisma = require("../utils/prismaClient");
 const authMiddleware = require("../middleware/authMiddleware");
 const { getSuggestions } = require("../services/optimizationService");
+const { classifyFileType } = require("../services/hashService");
 
 router.get("/search", authMiddleware, async (req, res) => {
   try {
-    const { name } = req.query;
 
-    if (!name || name.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide a file name to search.",
-      });
+    const { name = "", category = "" } = req.query;
+
+    // console.log("Request:", { name, category });
+
+    // Fetch all files
+    let files = await prisma.files.findMany();
+
+    // console.log("Before filtering:", files.length);
+
+    // ==========================
+    // Search Filter
+    // ==========================
+    if (name.trim() !== "") {
+
+      files = files.filter(file =>
+        (file.original_name || "")
+          .toLowerCase()
+          .includes(name.toLowerCase())
+      );
+
     }
 
-    const files = await prisma.files.findMany({
-      where: {
-        original_name: {
-          contains: name,
-        },
-      },
-    });
+    // console.log("After search:", files.length);
 
-    const result = files.map((file) => ({
+    // ==========================
+    // Category Filter
+    // ==========================
+    if (category.trim() !== "") {
+
+      files = files.filter(file => {
+
+        const fileCategory = classifyFileType(
+          file.type,
+          file.original_name || file.filename || ""
+        );
+
+        console.log(
+          `${file.original_name} -> ${fileCategory}`
+        );
+
+        return fileCategory.toLowerCase() === category.toLowerCase();
+
+      });
+
+    }
+
+    // console.log("After category:", files.length);
+
+    // ==========================
+    // Convert for Frontend
+    // ==========================
+    const result = files.map(file => ({
       id: file.id,
       filename: file.original_name,
       suggestions: getSuggestions(file),
@@ -36,10 +72,14 @@ router.get("/search", authMiddleware, async (req, res) => {
     });
 
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 });
 
