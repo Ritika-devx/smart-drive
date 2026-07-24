@@ -1,35 +1,47 @@
+// 
 
 import { useState } from "react";
+import { IoSearch } from "react-icons/io5";
 
 function Search({ onSearch }) {
-
   const [name, setName] = useState("");
 
   const handleSearch = () => {
-
-    onSearch(name);
-
+    onSearch(name.trim());
   };
 
   return (
+    <div className="search-container">
 
-    <div style={{ marginBottom: "20px" }}>
+      <div className="search-box">
 
-      <input
-        type="text"
-        placeholder="Search file..."
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+        <IoSearch className="search-icon" />
 
-      <button onClick={handleSearch}>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Search files by name..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        />
+
+      </div>
+
+      <button
+        className="sd-btn sd-btn-primary search-btn"
+        onClick={handleSearch}
+      >
+        <IoSearch />
         Search
       </button>
 
     </div>
-
   );
-
 }
 
 export default Search;
