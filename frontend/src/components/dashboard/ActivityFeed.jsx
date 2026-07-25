@@ -1,83 +1,91 @@
-import React from 'react';
+import {
+  Upload,
+  Trash2,
+  Archive,
+  AlertTriangle,
+  ChevronRight,
+} from "lucide-react";
 
-/**
- * ActivityFeed
- * ------------------------------------------------------------
- * Live-feeling timeline of storage events (uploads, deletes,
- * archives, optimization actions taken). Sourced from the
- * `activity` slice of GET /api/dashboard. Purely presentational —
- * pass `live` to show the pulsing "live" indicator when the feed
- * is actively polling / socket-connected.
- *
- * Props:
- *  events: [{ id, type: 'upload'|'delete'|'archive'|'flag', message, timestamp (ISO) }]
- *  live: boolean
- *  loading: boolean
- */
+function timeAgo(date) {
+  if (!date) return "-";
 
-const EVENT_STYLE = {
-  upload:  { color: 'var(--sd-blue)',   icon: '↑' },
-  delete:  { color: 'var(--sd-rose)',   icon: '✕' },
-  archive: { color: 'var(--sd-violet)', icon: '⧈' },
-  flag:    { color: 'var(--sd-amber)',  icon: '!' },
-  default: { color: 'var(--sd-slate)',  icon: '•' },
-};
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
 
-function timeAgo(iso) {
-  if (!iso) return '—';
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+  if (hrs < 24) return `${hrs} hr ago`;
+
+  const days = Math.floor(hrs / 24);
+  return `${days} day ago`;
 }
 
-export default function ActivityFeed({ events = [], live = true, loading = false }) {
+const icons = {
+  upload: { icon: Upload, color: "#4f8cff" },
+  delete: { icon: Trash2, color: "#ef4444" },
+  archive: { icon: Archive, color: "#7c5cff" },
+  flag: { icon: AlertTriangle, color: "#f59e0b" },
+};
+
+export default function ActivityFeed({ events = [], loading = false, live = true }) {
   return (
-    <div className="sd-card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+    <div className="sd-card sd-activity-card">
+      <div className="sd-activity-header">
         <div>
-          <div className="sd-eyebrow">Activity</div>
-          <div className="sd-h1" style={{ fontSize: 16, marginTop: 4 }}>What's happening</div>
+          <div className="sd-eyebrow">LIVE ACTIVITY</div>
+          <div className="sd-activity-title">Recent Timeline</div>
         </div>
+
         {live && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="sd-live">
             <span className="sd-live-dot" />
-            <span className="sd-eyebrow" style={{ color: 'var(--sd-green)' }}>Live</span>
+            LIVE
           </div>
         )}
       </div>
 
-      <div className="sd-scrollbar" style={{ position: 'relative', maxHeight: 300, overflowY: 'auto', paddingLeft: 6 }}>
-        <div style={{ position: 'absolute', left: 15, top: 4, bottom: 4, width: 1, background: 'var(--sd-glass-border)' }} />
-        {loading && <div className="sd-eyebrow">Loading…</div>}
+      <div className="sd-activity-list">
+        {loading && <div className="sd-activity-empty">Loading activity...</div>}
+
         {!loading && events.length === 0 && (
-          <div style={{ color: 'var(--sd-text-low)', fontSize: 13, padding: '10px 0' }}>No recent activity.</div>
+          <div className="sd-activity-empty">No recent activity</div>
         )}
-        {!loading && events.map((e, idx) => {
-          const style = EVENT_STYLE[e.type] || EVENT_STYLE.default;
-          return (
-            <div key={e.id} className="sd-anim-in" style={{ display: 'flex', gap: 12, padding: '8px 0', animationDelay: `${idx * 45}ms` }}>
-              <span
-                style={{
-                  width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'var(--sd-bg-1)', border: `1px solid ${style.color}`, color: style.color,
-                  fontSize: 10, flexShrink: 0, zIndex: 1, marginLeft: 2,
-                }}
+
+        {!loading &&
+          events.map((event, index) => {
+            const item = icons[event.type] || icons.upload;
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={event.id ?? index}
+                className="sd-activity-item"
+                style={{ animation: `fadeUp .45s ease ${index * 0.08}s both` }}
               >
-                {style.icon}
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: 'var(--sd-text-mid)' }}>{e.message}</div>
-                <div className="sd-mono" style={{ fontSize: 10.5, color: 'var(--sd-text-low)', marginTop: 1 }}>
-                  {timeAgo(e.timestamp)}
+                <div className="sd-activity-icon" style={{ background: item.color }}>
+                  <Icon size={18} color="#fff" />
                 </div>
+
+                <div className="sd-activity-content">
+                  <div className="sd-activity-text">{event.message}</div>
+                  <div className="sd-activity-time">{timeAgo(event.timestamp)}</div>
+                </div>
+
+                <ChevronRight size={18} className="sd-activity-arrow" />
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+      </div>
+
+      <div style={{ marginTop: 20, textAlign: "center" }}>
+        <button
+          className="sd-btn sd-btn-primary"
+          style={{ width: "100%", padding: "12px", borderRadius: 14, fontSize: 14 }}
+        >
+          View Full Activity
+        </button>
       </div>
     </div>
   );
