@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import AppShell from "./AppShell";
+import AppShell from "./appShell";
 
 import Login from "./pages/Login";
 import Suggestions from "./pages/Suggestions";
@@ -50,3 +50,12 @@ function App() {
 }
 
 export default App;
+
+// import AppShell from "./appShell";
+
+// function App() {
+//   return <AppShell />;
+// }
+
+// export default App;
+
