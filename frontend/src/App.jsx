@@ -5,7 +5,7 @@ import AppShell from "./appShell";
 import Login from "./pages/Login";
 import Suggestions from "./pages/Suggestions";
 import Upload from "./pages/Upload";
-
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
