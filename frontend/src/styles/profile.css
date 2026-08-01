@@ -1,0 +1,109 @@
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
+.sd-profile-container { width: 100%; margin: 0; padding: 0; }
+
+.sd-profile-page-title { margin-bottom: 20px; }
+
+/* ---- Hero card ---- */
+.sd-profile-hero {
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+  padding: 28px; margin-bottom: 20px;
+  border-radius: 18px; border: 1px solid var(--sd-glass-border);
+  background: rgba(99,102,241,0.06);
+  flex-wrap: wrap;
+}
+.sd-profile-hero-left { display: flex; align-items: center; gap: 20px; z-index: 1; }
+.sd-profile-avatar-wrap { position: relative; flex-shrink: 0; }
+.sd-profile-avatar {
+  width: 84px; height: 84px; border-radius: 50%;
+  background: var(--sd-grad-primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sd-font-display); font-size: 30px; font-weight: 700;
+  box-shadow: var(--sd-shadow-glow-blue);
+}
+.sd-profile-avatar-cam {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sd-blue); color: #fff; border: 2px solid var(--sd-glass);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.sd-profile-name-row { display: flex; align-items: center; gap: 10px; }
+.sd-profile-meta-row { display: flex; align-items: center; gap: 6px; color: var(--sd-text-mid); font-size: 13px; margin-top: 5px; }
+
+.sd-profile-plan-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(99,102,241,0.12); color: var(--sd-blue); border: 1px solid rgba(99,102,241,0.22);
+}
+
+/* ---- Stats row ---- */
+.sd-profile-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.sd-profile-stat-card {
+  background: var(--sd-glass); border: 1px solid var(--sd-glass-border); border-radius: 14px;
+  padding: 16px 18px; display: flex; align-items: center; gap: 13px; box-shadow: var(--sd-shadow-card);
+}
+.sd-profile-stat-icon { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; }
+.sd-profile-stat-icon-blue   { background: var(--sd-blue); }
+.sd-profile-stat-icon-green  { background: var(--sd-green); }
+.sd-profile-stat-icon-amber  { background: var(--sd-amber); }
+.sd-profile-stat-icon-violet { background: var(--sd-violet); }
+.sd-profile-stat-num { font-family: var(--sd-font-display); font-size: 18px; font-weight: 700; color: var(--sd-text-hi); line-height: 1.15; }
+.sd-profile-stat-label { font-size: 12.5px; font-weight: 600; color: var(--sd-text-hi); }
+.sd-profile-stat-sub { font-size: 11px; color: var(--sd-text-low); margin-top: 1px; }
+
+/* ---- Two-column grid ---- */
+.sd-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 800px) { .sd-profile-grid { grid-template-columns: 1fr; } }
+
+.sd-profile-card { background: var(--sd-glass); border: 1px solid var(--sd-glass-border); border-radius: 14px; box-shadow: var(--sd-shadow-card); display: flex; flex-direction: column; }
+.sd-profile-card-header {
+  display: flex; align-items: center; gap: 9px; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--sd-glass-border);
+}
+.sd-profile-card-title { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; color: var(--sd-text-hi); }
+.sd-profile-card-title svg { color: var(--sd-blue); }
+
+.sd-profile-field-row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--sd-glass-border); }
+.sd-profile-field-row:first-of-type { border-top: none; }
+.sd-profile-field-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: rgba(99,102,241,0.08); color: var(--sd-blue);
+  display: flex; align-items: center; justify-content: center;
+}
+.sd-profile-field-label { font-size: 11px; color: var(--sd-text-low); }
+.sd-profile-field-value { font-size: 13.5px; font-weight: 600; color: var(--sd-text-hi); margin-top: 1px; }
+
+.sd-profile-card-footer { padding: 14px 18px; }
+
+/* ---- Toggle switch ---- */
+.sd-profile-toggle {
+  width: 40px; height: 22px; border-radius: 999px; border: none; cursor: pointer;
+  background: var(--sd-glass-border); position: relative; transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sd-profile-toggle.on { background: var(--sd-grad-primary); }
+.sd-profile-toggle-knob {
+  position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.sd-profile-toggle.on .sd-profile-toggle-knob { transform: translateX(18px); }
+
+/* ---- Storage donut ---- */
+.sd-profile-donut-wrap { display: flex; align-items: center; gap: 22px; padding: 18px; }
+.sd-profile-donut-legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 5px 0; }
+.sd-profile-donut-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; }
+
+/* ---- Activity empty state ---- */
+.sd-profile-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 18px; text-align: center; }
+.sd-profile-empty-title { font-size: 13.5px; font-weight: 700; color: var(--sd-text-hi); margin-top: 10px; }
+.sd-profile-empty-sub { font-size: 12px; color: var(--sd-text-low); margin-top: 2px; }
+
+/* ---- Bottom action bar ---- */
+.sd-profile-actions {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  padding: 16px 18px; border-radius: 14px; border: 1px solid var(--sd-glass-border);
+  background: var(--sd-glass); box-shadow: var(--sd-shadow-card);
+}
