@@ -1243,6 +1243,7 @@ body{
 }
 
 }
+
 /* ========================================================== 
    REGISTER CARD - smaller pass (overrides the earlier block,
    same selectors placed later in the file always win)
@@ -1361,4 +1362,43 @@ body{
     padding:9px 12px !important;
     font-size:12.5px !important;
     margin-bottom:12px !important;
+}
+/* .hero-section h2 {
+    color: #ffffff !important;
+}
+
+.hero-section p {
+    color: rgba(255,255,255,.8) !important;
+}
+
+.brand h1,
+.brand p,
+.lamp-message h2,
+.lamp-message p {
+    color: white !important;
+} */
+ /* ===========================
+   PROTECT LOGIN PAGE
+=========================== */
+
+.login-page .brand h1,
+.login-page .brand p,
+.login-page .hero-section h2,
+.login-page .hero-section p,
+.login-page .lamp-message h3,
+.login-page .lamp-message p,
+.login-page .login-card h2,
+.login-page .welcome-tag,
+.login-page .subtitle {
+
+    color: #fff !important;
+
+}
+
+.login-page .hero-section p,
+.login-page .subtitle,
+.login-page .lamp-message p {
+
+    color: rgba(255,255,255,.82) !important;
+
 }
