@@ -409,7 +409,7 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 
-import "./Login.css";
+import "../styles/Login.css";
 
 import { loginUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
