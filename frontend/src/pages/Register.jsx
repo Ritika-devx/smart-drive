@@ -12,7 +12,7 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 
-import "./Login.css";
+import "../styles/Login.css";
 
 import { registerUser } from "../services/authService";
 
