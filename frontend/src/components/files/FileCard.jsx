@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 
 /**
  * FileCard
@@ -12,12 +12,12 @@ import React, { useState } from 'react';
  *    id, name, type, size (bytes), uploadedAt (ISO),
  *    lastAccessed (ISO), status: 'normal'|'duplicate'|'old'|'large'
  *  }
- *  onDelete(id)   — called after a successful DELETE
- *  onArchive(id)  — called when "Archive" is pressed (parent owns the request)
+ *  onDelete(id)   - called after a successful DELETE
+ *  onArchive(id)  - called when "Archive" is pressed (parent owns the request)
  */
 
 const TYPE_ICON = {
-  image: '🖼', pdf: '▤', video: '▶', audio: '♫', archive: '⧉', doc: '▤', default: '◈',
+  image: '[IMG]', pdf: '[PDF]', video: '[VID]', audio: '[AUD]', archive: '[ZIP]', doc: '[DOC]', default: '[FILE]',
 };
 
 const STATUS_LABEL = {
@@ -25,7 +25,7 @@ const STATUS_LABEL = {
 };
 
 function formatBytes(bytes) {
-  if (!bytes && bytes !== 0) return '—';
+  if (!bytes && bytes !== 0) return '-';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let i = 0, v = bytes;
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
@@ -33,7 +33,7 @@ function formatBytes(bytes) {
 }
 
 function formatDate(iso) {
-  if (!iso) return '—';
+  if (!iso) return '-';
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
@@ -49,7 +49,7 @@ export default function FileCard({ file, onDelete, onArchive }) {
     if (!window.confirm(`Delete "${file.name}"? This can't be undone.`)) return;
     setBusy(true);
     try {
-      const token = localStorage.getItem('sd_token');
+      const token = localStorage.getItem('token');
       const res = await fetch(`/api/delete/${file.id}`, {
         method: 'DELETE',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -83,7 +83,7 @@ export default function FileCard({ file, onDelete, onArchive }) {
       <span
         style={{
           width: 38, height: 38, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(91,124,255,0.1)', border: '1px solid var(--sd-glass-border)', fontSize: 16, flexShrink: 0,
+          background: 'rgba(91,124,255,0.1)', border: '1px solid var(--sd-glass-border)', fontSize: 11, flexShrink: 0,
         }}
       >
         {TYPE_ICON[file.type] || TYPE_ICON.default}
@@ -94,7 +94,7 @@ export default function FileCard({ file, onDelete, onArchive }) {
           {file.name}
         </div>
         <div className="sd-mono" style={{ fontSize: 11, color: 'var(--sd-text-low)', marginTop: 2 }}>
-          {file.type?.toUpperCase() || 'FILE'} · {formatBytes(file.size)}
+          {file.type?.toUpperCase() || 'FILE'} - {formatBytes(file.size)}
         </div>
       </div>
 
@@ -113,9 +113,9 @@ export default function FileCard({ file, onDelete, onArchive }) {
       </div>
 
       <div style={{ display: 'flex', gap: 6, flex: '0 0 auto' }}>
-        <button className="sd-btn sd-btn-ghost" title="Download" onClick={handleDownload} disabled={busy}>⬇</button>
-        <button className="sd-btn sd-btn-ghost" title="Archive" onClick={handleArchive} disabled={busy}>⧈</button>
-        <button className="sd-btn sd-btn-ghost sd-btn-danger" title="Delete" onClick={handleDelete} disabled={busy}>✕</button>
+        <button className="sd-btn sd-btn-ghost" title="Download" onClick={handleDownload} disabled={busy}>DL</button>
+        <button className="sd-btn sd-btn-ghost" title="Archive" onClick={handleArchive} disabled={busy}>AR</button>
+        <button className="sd-btn sd-btn-ghost sd-btn-danger" title="Delete" onClick={handleDelete} disabled={busy}>X</button>
       </div>
     </div>
   );
