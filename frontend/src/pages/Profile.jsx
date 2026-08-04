@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
 import { useAuth } from '../context/AuthContext';
@@ -77,7 +77,7 @@ function LocalAvatar({ name, gender }) {
 
 export default function Profile() {
   const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
-  const username = storedUser?.username || 'User';
+  const username = storedUser?.name || storedUser?.username || 'User';
   const email = storedUser?.email || 'Not set';
 
   const { logout } = useAuth();
