@@ -47,7 +47,7 @@ export default function Dashboard({ onNavigate }) {
   const storedUser = JSON.parse(localStorage.getItem("user") || "null");
 
   const firstName =
-    storedUser?.username || storedUser?.email?.split("@")[0] || "User";
+    storedUser?.name || storedUser?.username || storedUser?.email?.split("@")[0] || "User";
 
   const greeting =
     new Date().getHours() < 12
