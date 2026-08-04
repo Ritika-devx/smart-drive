@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Files from "./pages/Files";
 import Upload from "./pages/Upload";
 import Profile from "./pages/Profile";
+import Suggestions from "./pages/Suggestions";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -22,7 +23,7 @@ const NAV = [
 ];
 
 const TOOLS = [
-  { key: "optimize", label: "Optimize", icon: "✦", disabled: true },
+  { key: "suggestions", label: "Optimize", icon: "✦" },
   { key: "settings", label: "Settings", icon: "⚙", disabled: true },
   { key: "profile", label: "Profile", icon: "👤" },
 ];
@@ -32,6 +33,7 @@ const LABELS = {
   files: "My Files",
   upload: "Upload",
   profile: "Profile",
+  suggestions: "Optimize",
 };
 
 export default function AppShell() {
@@ -59,7 +61,7 @@ export default function AppShell() {
   };
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-  const initials = (storedUser?.username || storedUser?.email || "U")
+  const initials = (storedUser?.name || storedUser?.username || storedUser?.email || "U")
     .trim()
     .charAt(0)
     .toUpperCase();
@@ -189,7 +191,7 @@ export default function AppShell() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {storedUser?.username || storedUser?.email || "User"}
+                  {storedUser?.name || storedUser?.username || storedUser?.email || "User"}
                 </div>
                 <button
                   onClick={handleLogout}
@@ -261,6 +263,7 @@ export default function AppShell() {
           {page === "files" && <Files />}
           {page === "upload" && <Upload />}
           {page === "profile" && <Profile />}
+          {page === "suggestions" && <Suggestions />}
         </main>
       </div>
 
