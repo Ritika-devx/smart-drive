@@ -40,7 +40,7 @@
 }
 
 /* ---- Stats row ---- */
-.sd-profile-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.sd-profile-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
 .sd-profile-stat-card {
   background: var(--sd-glass); border: 1px solid var(--sd-glass-border); border-radius: 14px;
   padding: 16px 18px; display: flex; align-items: center; gap: 13px; box-shadow: var(--sd-shadow-card);
@@ -95,11 +95,6 @@
 .sd-profile-donut-wrap { display: flex; align-items: center; gap: 22px; padding: 18px; }
 .sd-profile-donut-legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 5px 0; }
 .sd-profile-donut-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; }
-
-/* ---- Activity empty state ---- */
-.sd-profile-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 18px; text-align: center; }
-.sd-profile-empty-title { font-size: 13.5px; font-weight: 700; color: var(--sd-text-hi); margin-top: 10px; }
-.sd-profile-empty-sub { font-size: 12px; color: var(--sd-text-low); margin-top: 2px; }
 
 /* ---- Bottom action bar ---- */
 .sd-profile-actions {

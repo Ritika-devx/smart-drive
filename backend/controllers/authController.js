@@ -9,7 +9,6 @@ const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check empty fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -17,7 +16,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Check existing user
     const existingUser = await prisma.user.findUnique({
       where: {
         email,
@@ -31,10 +29,8 @@ const register = async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save user
     const user = await prisma.user.create({
       data: {
         name,
@@ -71,7 +67,6 @@ const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Check empty fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -79,7 +74,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: {
         email,
@@ -93,8 +87,10 @@ const login = async (req, res) => {
       });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(400).json({
@@ -103,7 +99,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate JWT Token
     const token = jwt.sign(
       {
         id: user.id,
@@ -123,6 +118,10 @@ const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        location: user.location,
+        gender: user.gender,
+        photo: user.photo,
       },
     });
 
@@ -141,8 +140,10 @@ const login = async (req, res) => {
 // =======================
 const changePassword = async (req, res) => {
   try {
+
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user.id; // set by the auth middleware
+
+    const userId = req.user.id;
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
@@ -159,7 +160,9 @@ const changePassword = async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: {
+        id: userId,
+      },
     });
 
     if (!user) {
@@ -169,7 +172,10 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(400).json({
@@ -178,11 +184,18 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      10
+    );
 
     await prisma.user.update({
-      where: { id: userId },
-      data: { password: hashedPassword },
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
     });
 
     res.status(200).json({
@@ -200,8 +213,62 @@ const changePassword = async (req, res) => {
   }
 };
 
+// =======================
+// UPDATE PROFILE
+// =======================
+const updateProfile = async (req, res) => {
+  try {
+
+    const userId = req.user.id;
+
+    const {
+      name,
+      phone,
+      location,
+      gender,
+      photo,
+    } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name,
+        phone,
+        location,
+        gender,
+        photo,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        location: updatedUser.location,
+        gender: updatedUser.gender,
+        photo: updatedUser.photo,
+      },
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
+
 module.exports = {
   register,
   login,
   changePassword,
+  updateProfile,
 };
