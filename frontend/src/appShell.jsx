@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Files from "./pages/Files";
 import Upload from "./pages/Upload";
 import Profile from "./pages/Profile";
+
 import Suggestions from "./pages/Suggestions";
 import Trash from "./pages/Trash";
 import Archived from "./pages/Archived";
 
+
 import { useAuth } from "./context/AuthContext";
+import { avatarGradient, avatarInitial } from "./utils/avatar";
 
 import "./styles/global.css";
 import "./styles/dashboard.css";
@@ -26,10 +29,11 @@ const NAV = [
 ];
 
 const TOOLS = [
-  { key: "suggestions", label: "Optimize", icon: "✦" },
+  { key: "optimize", label: "Optimize", icon: "✦", disabled: true },
   { key: "settings", label: "Settings", icon: "⚙", disabled: true },
   { key: "profile", label: "Profile", icon: "👤" },
 ];
+
 
 const LABELS = {
   dashboard: "Dashboard",
@@ -41,12 +45,23 @@ const LABELS = {
   archived: "Archived",
 };
 
+function readStoredUser() {
+  return JSON.parse(localStorage.getItem("user") || "null");
+}
+
+
 export default function AppShell() {
   const [page, setPage] = useState("dashboard");
 
   const [theme, setTheme] = useState(
     () => localStorage.getItem("sd_theme") || "light"
   );
+
+  // storedUser now lives in state instead of being recomputed inline on every
+  // render. This lets us refresh it on demand (see the effect below) so the
+  // corner avatar picks up photo changes made on the Profile page without
+  // needing a full page reload.
+  const [storedUser, setStoredUser] = useState(readStoredUser);
 
   const { logout } = useAuth();
 
@@ -65,11 +80,24 @@ export default function AppShell() {
     navigate("/");
   };
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-  const initials = (storedUser?.name || storedUser?.username || storedUser?.email || "U")
-    .trim()
-    .charAt(0)
-    .toUpperCase();
+  // Keep storedUser in sync:
+  // - "sd-user-updated" fires in-tab whenever Profile.jsx persists a change
+  //   (photo upload/remove, field save) so the corner avatar updates instantly.
+  // - "storage" fires when localStorage changes from another tab/window.
+  useEffect(() => {
+    const refresh = () => setStoredUser(readStoredUser());
+    window.addEventListener("sd-user-updated", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("sd-user-updated", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
+
+  const displayName = storedUser?.username || storedUser?.name || storedUser?.email || "User";
+  const initials = avatarInitial(displayName);
+  const avatarBg = avatarGradient(displayName);
+  const userPhoto = storedUser?.photo || null;
 
   return (
     <div className="sd-root" data-theme={theme}>
@@ -140,51 +168,28 @@ export default function AppShell() {
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div
-              style={{
-                padding: 14,
-                borderRadius: 12,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11.5, color: "rgba(255,255,255,.6)" }}>Storage Used</span>
-                <span style={{ fontSize: 11.5, color: "rgba(255,255,255,.6)" }}>0%</span>
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#fff", marginBottom: 8 }}>0.0 B of 10 GB</div>
-              <div style={{ height: 5, borderRadius: 999, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: "0%", background: "var(--sd-grad-primary)" }} />
-              </div>
-            </div>
-
-            <button
-              style={{
-                width: "100%", padding: "9px", border: "none", borderRadius: 10, cursor: "pointer",
-                background: "rgba(255,255,255,0.06)", color: "#fff", fontWeight: 600, fontSize: 12.5,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              }}
-            >
-              🚀 Upgrade Storage
-            </button>
-
-            <div
-              style={{
-                padding: 12, borderRadius: 12,
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-                display: "flex", alignItems: "center", gap: 10,
-              }}
-            >
-              <span style={{ fontSize: 18 }}>🎧</span>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Need Help?</div>
-                <div style={{ fontSize: 11, color: "var(--sd-blue-soft, #8ea2ff)" }}>Go to Help Center</div>
-              </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div className="sd-sidebar-upgrade">
+              <div>🚀 Upgrade to Pro</div>
+              <div>Get more storage, priority support and advanced tools.</div>
+              <button>Upgrade Now</button>
             </div>
 
             <div className="sd-sidebar-user">
-              <div className="sd-sidebar-avatar">{initials}</div>
+              <div
+                className="sd-sidebar-avatar"
+                style={{ background: userPhoto ? "transparent" : avatarBg, overflow: "hidden", padding: 0 }}
+              >
+                {userPhoto ? (
+                  <img
+                    src={userPhoto}
+                    alt={displayName}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }}
+                  />
+                ) : (
+                  initials
+                )}
+              </div>
               <div style={{ minWidth: 0 }}>
                 <div
                   style={{
@@ -196,7 +201,7 @@ export default function AppShell() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {storedUser?.name || storedUser?.username || storedUser?.email || "User"}
+                  {displayName}
                 </div>
                 <button
                   onClick={handleLogout}
@@ -245,32 +250,35 @@ export default function AppShell() {
               className="sd-topbar-avatar"
               onClick={() => setPage("profile")}
               title="View profile"
-              style={{ border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 5 }}
+              style={{
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                background: userPhoto ? "transparent" : avatarBg,
+                overflow: "hidden",
+              }}
             >
-              {initials}
+              {userPhoto ? (
+                <img
+                  src={userPhoto}
+                  alt={displayName}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }}
+                />
+              ) : (
+                initials
+              )}
             </button>
           </div>
-
-          {page !== "dashboard" && (
-            <div style={{ padding: "14px 28px 0", fontSize: 12.5, color: "var(--sd-text-mid)" }}>
-              <span
-                style={{ color: "var(--sd-blue)", cursor: "pointer", fontWeight: 600 }}
-                onClick={() => setPage("dashboard")}
-              >
-                Dashboard
-              </span>
-              <span style={{ margin: "0 6px", color: "var(--sd-text-low)" }}>›</span>
-              <span style={{ color: "var(--sd-text-hi)", fontWeight: 600 }}>{LABELS[page]}</span>
-            </div>
-          )}
 
           {page === "dashboard" && <Dashboard onNavigate={setPage} />}
           {page === "files" && <Files />}
           {page === "upload" && <Upload />}
           {page === "profile" && <Profile />}
+
           {page === "suggestions" && <Suggestions />}
           {page === "trash" && <Trash />}
           {page === "archived" && <Archived />}
+
         </main>
       </div>
 

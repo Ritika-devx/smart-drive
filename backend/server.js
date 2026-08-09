@@ -94,11 +94,12 @@ const filterRoutes = require("./routes/filterRoutes");
 
 // ⭐ Authentication Routes
 const authRoutes = require("./routes/authRoutes");
+const storageRoutes = require("./routes/storageRoutes");
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "3mb" }));
 
 // ==========================
 // API Routes
@@ -118,6 +119,8 @@ app.use("/api", filterRoutes);
 // ⭐ Authentication
 app.use("/api/auth", authRoutes);
 
+// ⭐ Storage
+app.use("/api/storage", storageRoutes);
 // ==========================
 // Home Route
 // ==========================

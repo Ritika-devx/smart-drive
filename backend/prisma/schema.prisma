@@ -25,15 +25,30 @@ model files {
   hash           String?   @db.VarChar(255)
   duplicate_flag Boolean?  @default(false)
   suggestion     String?   @db.VarChar(50)
+
   is_deleted     Boolean?  @default(false)
   deleted_at     DateTime? @db.Timestamp(0)
   is_archived    Boolean?  @default(false)
   archived_at    DateTime? @db.Timestamp(0)
+
+  // Relation with User
+  userId         Int?
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(100)
   password  String   @db.VarChar(255)
+
+  phone     String?  @db.VarChar(20)
+  location  String?  @db.VarChar(100)
+  photo     String?  @db.Text
+  gender    String?  @db.VarChar(10)
+
   createdAt DateTime @default(now())
+
+  // Relation
+  files files[]
 }
