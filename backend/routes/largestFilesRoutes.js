@@ -7,6 +7,10 @@ router.get("/largest-files", authMiddleware, async (req, res) => {
   try {
 
     const largestFiles = await prisma.files.findMany({
+      where: {
+        is_deleted: { not: true },
+        is_archived: { not: true }
+      },
       orderBy: {
         size: "desc"
       },
@@ -19,7 +23,7 @@ router.get("/largest-files", authMiddleware, async (req, res) => {
       original_name: file.original_name,
       size: Number(file.size || 0),
       type: file.type,
-      uploaded_at: file.uploaded_at
+      uploaded_at: file.upload_date
     }));
 
     res.status(200).json({

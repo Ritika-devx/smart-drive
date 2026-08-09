@@ -68,7 +68,7 @@ router.get("/duplicates", authMiddleware, async (req, res) => {
         },
       },
       orderBy: {
-        uploaded_at: "asc",
+        upload_date: "asc",
       },
     });
 
@@ -92,7 +92,7 @@ router.get("/duplicates", authMiddleware, async (req, res) => {
           filename: f.filename,
           original_name: f.original_name,
           size: Number(f.size || 0),
-          uploaded_at: f.uploaded_at,
+          uploaded_at: f.upload_date,
         })),
       }));
 
@@ -219,7 +219,7 @@ router.get("/recent-files", authMiddleware, async (req, res) => {
 
     const recentFiles = await prisma.files.findMany({
       orderBy: {
-        uploaded_at: "desc",
+        upload_date: "desc",
       },
       take: limit,
     });
@@ -234,7 +234,7 @@ router.get("/recent-files", authMiddleware, async (req, res) => {
         f.type,
         f.original_name || f.filename || ""
       ),
-      uploaded_at: f.uploaded_at,
+      uploaded_at: f.upload_date,
     }));
 
     res.status(200).json({

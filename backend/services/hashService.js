@@ -68,7 +68,7 @@ const calculateDuplicateWaste = async () => {
     where: {
       hash: { not: null },
     },
-    orderBy: { uploaded_at: "asc" },
+    orderBy: { upload_date: "asc" },
     select: { id: true, hash: true, size: true },
   });
 

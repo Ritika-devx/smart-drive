@@ -6,6 +6,8 @@ import Files from "./pages/Files";
 import Upload from "./pages/Upload";
 import Profile from "./pages/Profile";
 import Suggestions from "./pages/Suggestions";
+import Trash from "./pages/Trash";
+import Archived from "./pages/Archived";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -19,7 +21,8 @@ const NAV = [
   { key: "shared", label: "Shared with me", icon: "👥", disabled: true },
   { key: "recent", label: "Recent", icon: "🕒", disabled: true },
   { key: "starred", label: "Starred", icon: "⭐", disabled: true },
-  { key: "trash", label: "Trash", icon: "🗑", disabled: true },
+  { key: "trash", label: "Trash", icon: "🗑" },
+  { key: "archived", label: "Archived", icon: "📦" },
 ];
 
 const TOOLS = [
@@ -34,6 +37,8 @@ const LABELS = {
   upload: "Upload",
   profile: "Profile",
   suggestions: "Optimize",
+  trash: "Trash",
+  archived: "Archived",
 };
 
 export default function AppShell() {
@@ -264,6 +269,8 @@ export default function AppShell() {
           {page === "upload" && <Upload />}
           {page === "profile" && <Profile />}
           {page === "suggestions" && <Suggestions />}
+          {page === "trash" && <Trash />}
+          {page === "archived" && <Archived />}
         </main>
       </div>
 

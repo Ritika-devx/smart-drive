@@ -15,8 +15,12 @@ const {
 router.get("/files", authMiddleware, async (req, res) => {
   try {
     const files = await prisma.files.findMany({
+      where: {
+        is_deleted: { not: true },
+        is_archived: { not: true },
+      },
       orderBy: {
-        uploaded_at: "desc",
+        upload_date: "desc",
       },
     });
 
