@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Suggestions from "./pages/Suggestions";
 import Trash from "./pages/Trash";
 import Archived from "./pages/Archived";
+import Recent from "./pages/Recent";
 
 
 import { useAuth } from "./context/AuthContext";
@@ -22,14 +23,14 @@ const NAV = [
   { key: "files", label: "My Files", icon: "📁" },
   { key: "upload", label: "Upload", icon: "☁" },
   { key: "shared", label: "Shared with me", icon: "👥", disabled: true },
-  { key: "recent", label: "Recent", icon: "🕒", disabled: true },
+  { key: "recent", label: "Recent", icon: "🕒" },
   { key: "starred", label: "Starred", icon: "⭐", disabled: true },
   { key: "trash", label: "Trash", icon: "🗑" },
   { key: "archived", label: "Archived", icon: "📦" },
 ];
 
 const TOOLS = [
-  { key: "optimize", label: "Optimize", icon: "✦", disabled: true },
+  { key: "suggestions", label: "Optimize", icon: "✦" },
   { key: "settings", label: "Settings", icon: "⚙", disabled: true },
   { key: "profile", label: "Profile", icon: "👤" },
 ];
@@ -43,6 +44,7 @@ const LABELS = {
   suggestions: "Optimize",
   trash: "Trash",
   archived: "Archived",
+  recent: "Recent",
 };
 
 function readStoredUser() {
@@ -169,12 +171,6 @@ export default function AppShell() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div className="sd-sidebar-upgrade">
-              <div>🚀 Upgrade to Pro</div>
-              <div>Get more storage, priority support and advanced tools.</div>
-              <button>Upgrade Now</button>
-            </div>
-
             <div className="sd-sidebar-user">
               <div
                 className="sd-sidebar-avatar"
@@ -278,6 +274,7 @@ export default function AppShell() {
           {page === "suggestions" && <Suggestions />}
           {page === "trash" && <Trash />}
           {page === "archived" && <Archived />}
+          {page === "recent" && <Recent />}
 
         </main>
       </div>

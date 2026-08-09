@@ -462,4 +462,60 @@ router.get("/download/:id", authMiddleware, async (req, res) => {
 
   }
 });
+// GET /api/activity
+// Full activity log for the "Recent" page (dashboard only shows a
+// 10-item preview of this same data).
+router.get("/activity", authMiddleware, async (req, res) => {
+
+  try {
+
+    const ACTION_MAP = {
+      UPLOAD: "upload",
+      DELETE: "delete",
+      DOWNLOAD: "upload",
+      ARCHIVE: "archive",
+      UNARCHIVE: "archive",
+      RESTORE: "archive",
+      TRASH: "delete",
+    };
+
+    const ACTION_LABEL = {
+      UPLOAD: "Uploaded",
+      DELETE: "Deleted",
+      DOWNLOAD: "Downloaded",
+      ARCHIVE: "Archived",
+      UNARCHIVE: "Unarchived",
+      RESTORE: "Restored",
+      TRASH: "Trashed",
+    };
+
+    const logs = await prisma.activity_logs.findMany({
+      orderBy: { created_at: "desc" },
+      take: 50,
+    });
+
+    const activity = logs.map((log) => ({
+      id: log.id,
+      type: ACTION_MAP[log.action] || "flag",
+      message: `${ACTION_LABEL[log.action] || log.action} "${log.file_name || "a file"}"`,
+      timestamp: log.created_at,
+    }));
+
+    res.status(200).json({
+      success: true,
+      activity,
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
 module.exports = router;

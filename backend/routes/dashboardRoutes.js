@@ -66,31 +66,47 @@ router.get("/dashboard", async (req, res) => {
 
     const now = Date.now();
     let oldUnusedFiles = 0;
-    let oldBytes = 0;
     let largeFiles = 0;
-    let largeBytes = 0;
-    let normalBytes = 0;
+
+    const breakdown = { documents: 0, images: 0, videos: 0, others: 0, largeIdle: 0 };
+
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    const weekBytesByDay = [0, 0, 0, 0, 0, 0, 0]; // Sun..Sat
 
     files.forEach((f) => {
       const size = Number(f.size || 0);
-      const ageDays = f.upload_date
-        ? (now - new Date(f.upload_date).getTime()) / (1000 * 60 * 60 * 24)
+      const uploadDate = f.upload_date ? new Date(f.upload_date) : null;
+      const ageDays = uploadDate
+        ? (now - uploadDate.getTime()) / (1000 * 60 * 60 * 24)
         : 0;
       const isOld = ageDays > OLD_FILE_DAYS;
       const isLarge = size > LARGE_FILE_BYTES;
 
-      if (isOld) {
-        oldUnusedFiles += 1;
-        oldBytes += size;
+      if (isOld) oldUnusedFiles += 1;
+      if (isLarge) largeFiles += 1;
+
+      // Large or stale files get pulled into their own bucket so they're
+      // easy to spot on the chart, instead of being buried under their
+      // normal file-type bucket.
+      if (isOld || isLarge) {
+        breakdown.largeIdle += size;
+      } else {
+        const category = categorizeType(f.type);
+        if (category === "image") breakdown.images += size;
+        else if (category === "video") breakdown.videos += size;
+        else if (category === "pdf" || category === "doc") breakdown.documents += size;
+        else breakdown.others += size;
       }
-      if (isLarge) {
-        largeFiles += 1;
-        largeBytes += size;
-      }
-      if (!isOld && !isLarge) {
-        normalBytes += size;
+
+      if (uploadDate && uploadDate >= startOfWeek) {
+        weekBytesByDay[uploadDate.getDay()] += size;
       }
     });
+
+    // GB uploaded per weekday (Sun..Sat), this calendar week.
+    const trend = weekBytesByDay.map((b) => Number((b / 1024 ** 3).toFixed(2)));
 
     const { totalDuplicateFiles, wastedBytes } =
       await calculateDuplicateWaste();
@@ -127,12 +143,8 @@ router.get("/dashboard", async (req, res) => {
         largeFiles,
         wastedStorage: wastedBytes,
       },
-      breakdown: {
-        normal: normalBytes,
-        duplicate: wastedBytes,
-        old: oldBytes,
-        large: largeBytes,
-      },
+      breakdown,
+      trend,
       recentUploads,
       activity,
     });

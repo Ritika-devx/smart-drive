@@ -3,7 +3,6 @@ import StatsCards from "../components/dashboard/StatsCards";
 import StorageChart from "../components/dashboard/StorageChart";
 import Storagetrend from "../components/dashboard/Storagetrend";
 import RecentUploads from "../components/dashboard/RecentUploads";
-import ActivityFeed from "../components/dashboard/ActivityFeed";
 import Quickactions from "../components/dashboard/Quickactions";
 
 export default function Dashboard({ onNavigate }) {
@@ -129,7 +128,7 @@ export default function Dashboard({ onNavigate }) {
         className="sd-bottom-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: "1.6fr 1fr 1fr",
+          gridTemplateColumns: "2fr 1fr",
           gap: 24,
           marginTop: 24,
           alignItems: "start",
@@ -142,8 +141,6 @@ export default function Dashboard({ onNavigate }) {
         />
 
         <Quickactions onNavigate={onNavigate} />
-
-        <ActivityFeed events={data?.activity || []} loading={loading} live />
       </div>
 
       {/* ===========================
