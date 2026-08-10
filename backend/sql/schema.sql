@@ -20,3 +20,16 @@ CREATE TABLE IF NOT EXISTS files (
 For testing after uploading files:
 */
 SELECT * FROM files;
+
+/*
+Your actual `files` table (created earlier, with userId etc.) already
+exists — run this ALTER instead of the CREATE TABLE above to add the
+trash/archive columns and widen `type` (docx mimetypes are 71 chars
+and overflowed the old VARCHAR(50)):
+*/
+ALTER TABLE files
+  ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE,
+  ADD COLUMN deleted_at DATETIME NULL,
+  ADD COLUMN is_archived BOOLEAN DEFAULT FALSE,
+  ADD COLUMN archived_at DATETIME NULL,
+  MODIFY COLUMN type VARCHAR(100);

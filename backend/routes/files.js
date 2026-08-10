@@ -21,6 +21,8 @@ router.get("/files", authMiddleware, async (req, res) => {
     const files = await prisma.files.findMany({
       where: {
         userId: req.user.id,
+        is_deleted: { not: true },
+        is_archived: { not: true },
       },
       orderBy: {
         upload_date: "desc",
@@ -88,7 +90,7 @@ router.post(
 
           const hash = generateFileHash(filePath);
 
-          const duplicate = await findDuplicateByHash(hash);
+          const duplicate = await findDuplicateByHash(hash, req.user.id);
 
           // Save in database
           await prisma.files.create({

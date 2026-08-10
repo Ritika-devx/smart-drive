@@ -1,16 +1,23 @@
 import { FileText, Image, Video, FolderOpen, AlertTriangle } from "lucide-react";
 
 const TYPES = [
-  { key: "documents", label: "Documents", color: "#4f8cff", icon: FileText },
-  { key: "images", label: "Images", color: "#22c55e", icon: Image },
-  { key: "videos", label: "Videos", color: "#f59e0b", icon: Video },
-  { key: "others", label: "Others", color: "#94a3b8", icon: FolderOpen },
-  { key: "largeIdle", label: "Large & Idle", color: "#ef4444", icon: AlertTriangle },
+  { key: "documents", label: "Documents", color: "#5B8CFF", icon: FileText },
+  { key: "images", label: "Images", color: "#34D399", icon: Image },
+  { key: "videos", label: "Videos", color: "#FBBF24", icon: Video },
+  { key: "others", label: "Others", color: "#A78BFA", icon: FolderOpen },
+  { key: "largeIdle", label: "Large & Idle", color: "#FB7185", icon: AlertTriangle },
 ];
 
 function formatBytes(bytes) {
-  if (!bytes && bytes !== 0) return "0 GB";
-  return `${(bytes / 1024 ** 3).toFixed(1)} GB`;
+  if (!bytes && bytes !== 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let i = 0;
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024;
+    i++;
+  }
+  return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
 export default function StorageChart({

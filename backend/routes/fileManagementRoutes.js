@@ -6,18 +6,17 @@ const path = require("path");
 const logActivity = require("../services/logService");
 const authMiddleware = require("../middleware/authMiddleware");
 
-// DELETE /api/delete/:id
-router.delete("/delete/:id", authMiddleware, async (req, res) => {
+
+// PATCH /api/archive/:id
+// Archives a file (hides it from the main list without touching disk).
+router.patch("/archive/:id", authMiddleware, async (req, res) => {
 
   try {
 
     const id = parseInt(req.params.id);
 
-    // find file
-    const file = await prisma.files.findUnique({
-      where: {
-        id: id
-      }
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
     });
 
     if (!file) {
@@ -27,29 +26,26 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    // uploads path
-    const filePath = path.join(
-      __dirname,
-      "../uploads",
-      file.filename
-    );
-
-    // delete physical file
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (file.is_deleted) {
+      return res.status(400).json({
+        success: false,
+        message: "File is in trash — restore it before archiving"
+      });
     }
 
-    // delete database entry
-    await prisma.files.delete({
-      where: {
-        id: id
+    await prisma.files.update({
+      where: { id: id },
+      data: {
+        is_archived: true,
+        archived_at: new Date()
       }
     });
-    await logActivity("DELETE", file.original_name);
+
+    await logActivity("ARCHIVE", file.original_name);
 
     res.status(200).json({
       success: true,
-      message: "File deleted successfully"
+      message: "File archived"
     });
 
   } catch (error) {
@@ -64,6 +60,349 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
 });
 
 
+// PUT /api/unarchive/:id
+// Brings a file back out of the archive into the main list.
+router.put("/unarchive/:id", authMiddleware, async (req, res) => {
+
+  try {
+
+    const id = parseInt(req.params.id);
+
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
+    });
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found"
+      });
+    }
+
+    await prisma.files.update({
+      where: { id: id },
+      data: {
+        is_archived: false,
+        archived_at: null
+      }
+    });
+
+    await logActivity("UNARCHIVE", file.original_name);
+
+    res.status(200).json({
+      success: true,
+      message: "File unarchived"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// GET /api/archived
+// Lists all currently archived files for the logged-in user.
+router.get("/archived", authMiddleware, async (req, res) => {
+
+  try {
+
+    const files = await prisma.files.findMany({
+      where: {
+        userId: req.user.id,
+        is_archived: true,
+        is_deleted: { not: true }
+      },
+      orderBy: {
+        archived_at: "desc"
+      }
+    });
+
+    const formattedFiles = files.map((file) => ({
+      ...file,
+      size: Number(file.size || 0)
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Archived files fetched successfully",
+      files: formattedFiles
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// DELETE /api/delete/:id
+// Moves a file to trash (soft delete). The physical file and DB row
+// stay in place until it's either restored or permanently deleted
+// from the trash.
+router.delete("/delete/:id", authMiddleware, async (req, res) => {
+
+  try {
+
+    const id = parseInt(req.params.id);
+
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
+    });
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found"
+      });
+    }
+
+    if (file.is_deleted) {
+      return res.status(400).json({
+        success: false,
+        message: "File is already in trash"
+      });
+    }
+
+    await prisma.files.update({
+      where: { id: id },
+      data: {
+        is_deleted: true,
+        deleted_at: new Date()
+      }
+    });
+
+    await logActivity("TRASH", file.original_name);
+
+    res.status(200).json({
+      success: true,
+      message: "File moved to trash"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// GET /api/trash
+// Lists all files currently sitting in trash for the logged-in user.
+router.get("/trash", authMiddleware, async (req, res) => {
+
+  try {
+
+    const files = await prisma.files.findMany({
+      where: {
+        userId: req.user.id,
+        is_deleted: true
+      },
+      orderBy: {
+        deleted_at: "desc"
+      }
+    });
+
+    const formattedFiles = files.map((file) => ({
+      ...file,
+      size: Number(file.size || 0)
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Trash fetched successfully",
+      files: formattedFiles
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// PUT /api/restore/:id
+// Restores a file out of trash back into the main file list.
+router.put("/restore/:id", authMiddleware, async (req, res) => {
+
+  try {
+
+    const id = parseInt(req.params.id);
+
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
+    });
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found"
+      });
+    }
+
+    if (!file.is_deleted) {
+      return res.status(400).json({
+        success: false,
+        message: "File is not in trash"
+      });
+    }
+
+    await prisma.files.update({
+      where: { id: id },
+      data: {
+        is_deleted: false,
+        deleted_at: null
+      }
+    });
+
+    await logActivity("RESTORE", file.original_name);
+
+    res.status(200).json({
+      success: true,
+      message: "File restored successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// DELETE /api/trash/:id
+// Permanently deletes a file that is already in trash — removes the
+// physical file from disk and the database row. Cannot be undone.
+router.delete("/trash/:id", authMiddleware, async (req, res) => {
+
+  try {
+
+    const id = parseInt(req.params.id);
+
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
+    });
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found"
+      });
+    }
+
+    if (!file.is_deleted) {
+      return res.status(400).json({
+        success: false,
+        message: "File must be in trash before it can be permanently deleted"
+      });
+    }
+
+    const filePath = path.join(
+      __dirname,
+      "../uploads",
+      file.filename
+    );
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await prisma.files.delete({
+      where: { id: id }
+    });
+
+    await logActivity("DELETE", file.original_name);
+
+    res.status(200).json({
+      success: true,
+      message: "File permanently deleted"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
+// DELETE /api/trash
+// Empties the entire trash in one go — permanently deletes every
+// file currently flagged is_deleted for the logged-in user.
+router.delete("/trash", authMiddleware, async (req, res) => {
+
+  try {
+
+    const trashedFiles = await prisma.files.findMany({
+      where: {
+        userId: req.user.id,
+        is_deleted: true
+      }
+    });
+
+    for (const file of trashedFiles) {
+      const filePath = path.join(
+        __dirname,
+        "../uploads",
+        file.filename
+      );
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    await prisma.files.deleteMany({
+      where: {
+        userId: req.user.id,
+        is_deleted: true
+      }
+    });
+
+    await logActivity("DELETE", `${trashedFiles.length} file(s) from trash`);
+
+    res.status(200).json({
+      success: true,
+      message: "Trash emptied successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
 
 // GET /api/download/:id
 router.get("/download/:id", authMiddleware, async (req, res) => {
@@ -71,16 +410,14 @@ router.get("/download/:id", authMiddleware, async (req, res) => {
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid file ID"
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file ID"
+      });
+    }
 
-    const file = await prisma.files.findUnique({
-      where: {
-        id: id
-      }
+    const file = await prisma.files.findFirst({
+      where: { id: id, userId: req.user.id }
     });
 
     if (!file) {
@@ -105,6 +442,12 @@ router.get("/download/:id", authMiddleware, async (req, res) => {
 
     await logActivity("DOWNLOAD", file.original_name);
 
+    // Track this as an access — powers the "Last accessed" column.
+    await prisma.files.update({
+      where: { id: id },
+      data: { last_accessed: new Date() }
+    });
+
     res.download(filePath, file.original_name);
 
   } catch (error) {
@@ -116,4 +459,65 @@ router.get("/download/:id", authMiddleware, async (req, res) => {
 
   }
 });
+
+
+// GET /api/activity
+// Full activity log for the "Recent" page.
+// Note: activity_logs isn't scoped per-user in the current schema
+// (no userId column on that table), so this shows all activity —
+// fine for a personal drive with one primary user, but flag this if
+// you add more users later.
+router.get("/activity", authMiddleware, async (req, res) => {
+
+  try {
+
+    const ACTION_MAP = {
+      UPLOAD: "upload",
+      DELETE: "delete",
+      DOWNLOAD: "upload",
+      ARCHIVE: "archive",
+      UNARCHIVE: "archive",
+      RESTORE: "archive",
+      TRASH: "delete",
+    };
+
+    const ACTION_LABEL = {
+      UPLOAD: "Uploaded",
+      DELETE: "Deleted",
+      DOWNLOAD: "Downloaded",
+      ARCHIVE: "Archived",
+      UNARCHIVE: "Unarchived",
+      RESTORE: "Restored",
+      TRASH: "Trashed",
+    };
+
+    const logs = await prisma.activity_logs.findMany({
+      orderBy: { created_at: "desc" },
+      take: 50,
+    });
+
+    const activity = logs.map((log) => ({
+      id: log.id,
+      type: ACTION_MAP[log.action] || "flag",
+      message: `${ACTION_LABEL[log.action] || log.action} "${log.file_name || "a file"}"`,
+      timestamp: log.created_at,
+    }));
+
+    res.status(200).json({
+      success: true,
+      activity,
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+});
+
+
 module.exports = router;

@@ -94,6 +94,12 @@ main{ width:100%; padding:22px 26px; }
 
 .sd-sidebar{
   width:236px;
+  flex-shrink:0;
+  position:sticky;
+  top:0;
+  height:100vh;
+  align-self:flex-start;
+  overflow-y:auto;
   background:linear-gradient(180deg,#1b2339,#121826);
   border-right:1px solid rgba(255,255,255,.06);
   padding:20px 14px;
