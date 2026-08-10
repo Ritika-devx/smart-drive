@@ -18,7 +18,13 @@ router.get("/filter", authMiddleware, async (req, res) => {
       });
     }
 
-    const files = await prisma.files.findMany();
+    const files = await prisma.files.findMany({
+      where: {
+        userId: req.user.id,
+        is_deleted: { not: true },
+        is_archived: { not: true },
+      },
+    });
 
     const filteredFiles = files.filter((file) => {
 

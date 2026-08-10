@@ -126,9 +126,9 @@
 //   );
 // }
 
-
 import  { useEffect, useState, useCallback, useMemo } from 'react';
 import FileCard from '../components/files/FileCard';
+import { categorizeType } from '../utils/fileType';
 
 /**
  * Files
@@ -168,7 +168,22 @@ export default function Files() {
       const res = await fetch(endpoint, { headers: authHeaders() });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
-      setFiles(Array.isArray(json) ? json : json.files || []);
+      const rawFiles = Array.isArray(json) ? json : json.files || [];
+
+      // Normalize backend field names (original_name, upload_date,
+      // last_accessed, type as a full mimetype) to what FileCard
+      // expects (name, uploadedAt, lastAccessed, a short type, status).
+      const normalized = rawFiles.map((f) => ({
+        id: f.id,
+        name: f.original_name || f.filename || 'Untitled',
+        type: categorizeType(f.type),
+        size: Number(f.size || 0),
+        uploadedAt: f.upload_date,
+        lastAccessed: f.last_accessed,
+        status: f.suggestion || (f.duplicate_flag ? 'duplicate' : 'normal'),
+      }));
+
+      setFiles(normalized);
     } catch (err) {
       setError(err.message || 'Could not load files.');
     }
@@ -185,24 +200,36 @@ export default function Files() {
     };
   }, [sort, loadFiles]);
 
+  const handleDownload = (id) => {
+    setFiles((prev) => prev.map((f) => (
+      f.id === id ? { ...f, lastAccessed: new Date().toISOString() } : f
+    )));
+  };
+
   const handleDelete = (id) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   const handleArchive = async (id) => {
-    // Archive endpoint not specified in the API list yet — optimistic
-    // local update so the UI stays responsive; swap in a real request
-    // (e.g. PATCH /api/archive/:id) once the backend exposes one.
-    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, archived: true } : f)));
+    try {
+      const res = await fetch(`/api/archive/${id}`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+      });
+      if (!res.ok) throw new Error('Could not archive file');
+      setFiles((prev) => prev.filter((f) => f.id !== id));
+    } catch (err) {
+      window.alert(err.message || 'Could not archive file.');
+    }
   };
 
  const sortedFiles = useMemo(() => {
   if (!files) return [];
   if (sort === 'largest') return files;
   const copy = [...files];
-  if (sort === 'name') copy.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === 'name') copy.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   if (sort === 'size') copy.sort((a, b) => (b.size || 0) - (a.size || 0));
-  if (sort === 'recent') copy.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+  if (sort === 'recent') copy.sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
   return copy;
 }, [files, sort]);
 
@@ -247,7 +274,7 @@ export default function Files() {
         )}
         {files !== null && sortedFiles.map((file, idx) => (
           <div key={file.id} style={{ animationDelay: `${idx * 35}ms` }}>
-            <FileCard file={file} onDelete={handleDelete} onArchive={handleArchive} />
+            <FileCard file={file} onDelete={handleDelete} onArchive={handleArchive} onDownload={handleDownload} />
           </div>
         ))}
       </div>

@@ -13,8 +13,14 @@ router.get("/search", authMiddleware, async (req, res) => {
 
     // console.log("Request:", { name, category });
 
-    // Fetch all files
-    let files = await prisma.files.findMany();
+    // Fetch this user's files only (excluding trashed/archived)
+    let files = await prisma.files.findMany({
+      where: {
+        userId: req.user.id,
+        is_deleted: { not: true },
+        is_archived: { not: true },
+      },
+    });
 
     // console.log("Before filtering:", files.length);
 

@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|pdf|doc|docx/;
+  const allowedExtensions = /jpeg|jpg|png|pdf|doc|docx|zip/;
 
   const allowedMimeTypes = [
     "image/jpeg",
@@ -32,6 +32,8 @@ const fileFilter = (req, file, cb) => {
     "application/pdf",
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/zip",
+    "application/x-zip-compressed",
   ];
 
   const extName = allowedExtensions.test(
@@ -45,7 +47,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new Error(
-        "Only JPG, JPEG, PNG, PDF, DOC, and DOCX files are allowed."
+        "Only JPG, JPEG, PNG, PDF, DOC, DOCX, and ZIP files are allowed."
       ),
       false
     );

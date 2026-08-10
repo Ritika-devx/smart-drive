@@ -15,13 +15,18 @@ const generateFileHash = (filePath) => {
 /**
  * Check if a given hash already exists in the files table.
  * @param {string} hash
+ * @param {number} [userId] - scope the check to one user's files
  * @returns {Promise<object|null>} the existing matching file record, or null
  */
-const findDuplicateByHash = async (hash) => {
+const findDuplicateByHash = async (hash, userId) => {
   if (!hash) return null;
 
   const existing = await prisma.files.findFirst({
-    where: { hash },
+    where: {
+      hash,
+      is_deleted: { not: true },
+      ...(userId ? { userId } : {}),
+    },
   });
 
   return existing;
@@ -61,14 +66,17 @@ const classifyFileType = (mimetype = "", originalname = "") => {
  * Calculate how much storage is wasted by duplicate files.
  * For each hash group with more than 1 file, every file after the
  * first (oldest) one is considered "wasted" duplicate storage.
+ * @param {number} [userId] - scope the calculation to one user's files
  * @returns {Promise<{ totalDuplicateFiles: number, wastedBytes: number }>}
  */
-const calculateDuplicateWaste = async () => {
+const calculateDuplicateWaste = async (userId) => {
   const files = await prisma.files.findMany({
     where: {
       hash: { not: null },
+      is_deleted: { not: true },
+      ...(userId ? { userId } : {}),
     },
-    orderBy: { uploaded_at: "asc" },
+    orderBy: { upload_date: "asc" },
     select: { id: true, hash: true, size: true },
   });
 
