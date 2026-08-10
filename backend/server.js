@@ -77,6 +77,12 @@
 
 
 require("dotenv").config();
+process.on("unhandledRejection", (reason) => {
+  console.error("🔴 UNHANDLED REJECTION:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("🔴 UNCAUGHT EXCEPTION:", err);
+});
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
