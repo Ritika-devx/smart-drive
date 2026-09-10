@@ -1,55 +1,9 @@
-// import api from "./api";
-
-// // Login API
-// export const loginUser = async (email, password) => {
-//   try {
-
-//     const response = await api.post("/auth/login", {
-//       email,
-//       password,
-//     });
-
-//     return response.data;
-
-//   } catch (error) {
-
-//     throw (
-//       error.response?.data || {
-//         success: false,
-//         message: "Login failed",
-//       }
-//     );
-
-//   }
-// };
-
-// // Register API
-// export const registerUser = async (username, email, password) => {
-//   try {
-
-//     const response = await api.post("/auth/register", {
-//       username,
-//       email,
-//       password,
-//     });
-
-//     return response.data;
-
-//   } catch (error) {
-
-//     throw (
-//       error.response?.data || {
-//         success: false,
-//         message: "Registration failed",
-//       }
-//     );
-
-//   }
-// };
-
 import api from "./api";
 
-// Login API
+// =======================
+// LOGIN API
+// =======================
+
 export const loginUser = async (email, password) => {
   try {
 
@@ -72,12 +26,19 @@ export const loginUser = async (email, password) => {
   }
 };
 
-// Register API
-export const registerUser = async (username, email, password) => {
+// =======================
+// REGISTER API
+// =======================
+
+export const registerUser = async (
+  username,
+  email,
+  password
+) => {
   try {
 
     const response = await api.post("/auth/register", {
-      name: username, // backend's authController expects "name", not "username"
+      name: username,
       email,
       password,
     });
@@ -90,6 +51,66 @@ export const registerUser = async (username, email, password) => {
       error.response?.data || {
         success: false,
         message: "Registration failed",
+      }
+    );
+
+  }
+};
+
+// =======================
+// FORGOT PASSWORD API
+// =======================
+
+export const forgotPassword = async (email) => {
+  try {
+
+    const response = await api.post(
+      "/auth/forgot-password",
+      {
+        email,
+      }
+    );
+
+    return response.data;
+
+  } catch (error) {
+
+    throw (
+      error.response?.data || {
+        success: false,
+        message: "Unable to process password reset request",
+      }
+    );
+
+  }
+};
+
+// =======================
+// RESET PASSWORD API
+// =======================
+
+export const resetPassword = async (
+  token,
+  newPassword
+) => {
+  try {
+
+    const response = await api.post(
+      "/auth/reset-password",
+      {
+        token,
+        newPassword,
+      }
+    );
+
+    return response.data;
+
+  } catch (error) {
+
+    throw (
+      error.response?.data || {
+        success: false,
+        message: "Unable to reset password",
       }
     );
 

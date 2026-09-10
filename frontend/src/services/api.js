@@ -7,20 +7,24 @@ const api = axios.create({
   },
 });
 
-// Automatically attach JWT token
+// Automatically attach JWT token to every API request
 api.interceptors.request.use(
   (config) => {
-
-    const token = localStorage.getItem("token");
+    // Check localStorage first (Remember Me)
+    // If not found, check sessionStorage
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
-
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 export default api;
