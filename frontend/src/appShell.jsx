@@ -10,6 +10,7 @@ import Suggestions from "./pages/Suggestions";
 import Trash from "./pages/Trash";
 import Archived from "./pages/Archived";
 import Recent from "./pages/Recent";
+import logo from "./assets/logo.png";
 
 
 import { useAuth } from "./context/AuthContext";
@@ -17,6 +18,8 @@ import { avatarGradient, avatarInitial } from "./utils/avatar";
 
 import "./styles/global.css";
 import "./styles/dashboard.css";
+
+import { getStoredUser } from "./utils/authStorage";
 
 const NAV = [
   { key: "dashboard", label: "Dashboard", icon: "🏠" },
@@ -48,7 +51,7 @@ const LABELS = {
 };
 
 function readStoredUser() {
-  return JSON.parse(localStorage.getItem("user") || "null");
+  return getStoredUser();
 }
 
 
@@ -108,11 +111,15 @@ export default function AppShell() {
         <aside className="sd-sidebar">
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 6px" }}>
             <div
-              className="sd-sidebar-logo-mark"
-              style={{ width: 36, height: 36, borderRadius: 11, fontSize: 16, color: "#fff" }}
-            >
-              ◈
-            </div>
+  className="sd-sidebar-logo-mark"
+  style={{ width: 36, height: 36, borderRadius: 11 }}
+>
+  <img
+    src={logo}
+    alt="Smart Drive"
+    style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: 11 }}
+  />
+</div>
             <div>
               <div className="sd-h1" style={{ fontSize: 14.5, color: "#fff" }}>
                 Smart Drive
@@ -228,10 +235,10 @@ export default function AppShell() {
               <input type="text" placeholder="Search files, folders..." />
             </div>
 
-            <button className="sd-topbar-icon-btn" title="Notifications">
+            {/* <button className="sd-topbar-icon-btn" title="Notifications">
               🔔
               <span className="sd-topbar-badge">3</span>
-            </button>
+            </button> */}
 
             <button
               className="sd-topbar-icon-btn sd-theme-icon"
@@ -268,7 +275,7 @@ export default function AppShell() {
 
           {page === "dashboard" && <Dashboard onNavigate={setPage} />}
           {page === "files" && <Files />}
-          {page === "upload" && <Upload />}
+          {page === "upload" && <Upload onNavigate={setPage} />}
           {page === "profile" && <Profile />}
 
           {page === "suggestions" && <Suggestions />}

@@ -125,7 +125,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import TrashCard from '../components/files/TrashCard';
 import { categorizeType } from '../utils/fileType';
-
+import { getToken } from "../utils/authStorage";
 /**
  * Trash
  * ------------------------------------------------------------
@@ -141,7 +141,7 @@ export default function Trash() {
   const [emptying, setEmptying] = useState(false);
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

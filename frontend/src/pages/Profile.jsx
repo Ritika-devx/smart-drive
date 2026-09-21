@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
 import { useAuth } from '../context/AuthContext';
 import { avatarGradient, avatarInitial } from "../utils/avatar";
+import { getToken, getStoredUser } from "../utils/authStorage";
 import {
   Camera, Edit3, Mail, Calendar, Phone, MapPin, UserCircle, Lock, Clock, Shield,
   Palette, Globe, Moon, Sun, FolderOpen, HardDrive, Copy,
@@ -38,7 +39,7 @@ function InitialsAvatar({ name }) {
 // Small helper — every real save goes through this so token/headers/error
 // handling stays in one place instead of being duplicated per call site.
 async function callUpdateProfile(payload) {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   const res = await fetch('/api/auth/update-profile', {
     method: 'PUT',
     headers: {
@@ -65,7 +66,7 @@ function formatBytes(bytes) {
 }
 
 export default function Profile() {
-  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const storedUser = getStoredUser();
   const fileInputRef = useRef(null);
 
   const { logout } = useAuth();
@@ -131,8 +132,9 @@ export default function Profile() {
   // (which reads the user from localStorage separately, for the sidebar/topbar
   // avatars) refreshes immediately instead of waiting for a full reload.
   const persistLocalUser = (patch) => {
-    const merged = { ...(JSON.parse(localStorage.getItem('user') || 'null') || {}), ...patch };
-    localStorage.setItem('user', JSON.stringify(merged));
+    const merged = { ...(getStoredUser() || {}), ...patch };
+const store = localStorage.getItem('token') ? localStorage : sessionStorage;
+store.setItem('user', JSON.stringify(merged));
     window.dispatchEvent(new Event('sd-user-updated'));
     return merged;
   };
@@ -240,7 +242,7 @@ export default function Profile() {
 
     setPwLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       const res = await fetch('/api/auth/change-password', {
         method: 'POST',
         headers: {

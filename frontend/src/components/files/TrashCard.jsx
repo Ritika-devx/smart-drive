@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getToken } from "../../utils/authStorage";
 
 /**
  * TrashCard
@@ -36,7 +37,7 @@ export default function TrashCard({ file, onRestore, onPermanentDelete }) {
   const [removed, setRemoved] = useState(false);
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

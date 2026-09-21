@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import ArchiveCard from '../components/files/ArchiveCard';
 import { categorizeType } from '../utils/fileType';
+import { getToken } from "../utils/authStorage";
 
 /**
  * Archived
@@ -14,7 +15,7 @@ export default function Archived() {
   const [error, setError] = useState(null);
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

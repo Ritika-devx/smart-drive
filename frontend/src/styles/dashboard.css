@@ -115,7 +115,7 @@ main{ width:100%; padding:22px 26px; }
 }
 
 .sd-sidebar-logo-mark{
-  background:linear-gradient(135deg,var(--sd-primary),var(--sd-secondary));
+  background:linear-gradient(180deg,#1b2339,#121826);
   display:flex;
   align-items:center;
   justify-content:center;

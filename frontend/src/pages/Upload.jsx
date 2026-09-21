@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import UploadBox from '../components/upload/UploadBox';
 import UploadPreview from '../components/upload/UploadPreview';
 import { AlertTriangle, UploadCloud, FileText, PieChart, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { getToken } from "../utils/authStorage";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const LARGE_FILE_THRESHOLD = 25 * 1024 * 1024;
@@ -61,7 +62,7 @@ function UploadIllustration() {
   );
 }
 
-export default function Upload() {
+export default function Upload({ onNavigate }) {
   const [files, setFiles] = useState([]);
   const [duplicatePrompt, setDuplicatePrompt] = useState(null);
   const [toast, setToast] = useState(null);
@@ -111,7 +112,7 @@ export default function Upload() {
   };
 
   const uploadFile = (id, file, name) => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const formData = new FormData();
     formData.append('file', file, name);
 
@@ -245,9 +246,12 @@ export default function Upload() {
             <div className="sd-upload-tip-sub">Upload only the files you need and remove duplicates to save space.</div>
           </div>
         </div>
-        <button className="sd-upload-btn sd-upload-btn-primary">
-          Go to My Files <ArrowRight size={14} />
-        </button>
+        <button
+  className="sd-upload-btn sd-upload-btn-primary"
+  onClick={() => (onNavigate ? onNavigate('files') : (window.location.href = '/dashboard'))}
+>
+  Go to My Files <ArrowRight size={14} />
+</button>
       </div>
 
       {duplicatePrompt && (
