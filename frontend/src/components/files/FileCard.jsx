@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { FiDownload, FiArchive, FiTrash2 } from 'react-icons/fi';
+import { getToken } from "../../utils/authStorage";
 
 /**
  * FileCard
@@ -45,7 +46,7 @@ export default function FileCard({ file, onDelete, onArchive, onDownload }) {
   const [removed, setRemoved] = useState(false);
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

@@ -129,6 +129,7 @@
 import  { useEffect, useState, useCallback, useMemo } from 'react';
 import FileCard from '../components/files/FileCard';
 import { categorizeType } from '../utils/fileType';
+import { getToken } from "../utils/authStorage";
 
 /**
  * Files
@@ -157,7 +158,7 @@ export default function Files() {
   const [sort, setSort] = useState('recent');
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

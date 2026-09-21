@@ -1,9 +1,9 @@
 import axios from "axios";
-
+import { getToken } from "../utils/authStorage";
 const API = "/api";
 
 export const getStorage = async () => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const response = await axios.get(`${API}/storage`, {
     headers: {
@@ -15,7 +15,7 @@ export const getStorage = async () => {
 };
 
 export const getStorageBreakdown = async () => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const response = await axios.get(`${API}/storage/breakdown`, {
     headers: {

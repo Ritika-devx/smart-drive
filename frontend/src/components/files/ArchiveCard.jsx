@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FiRotateCcw } from 'react-icons/fi';
-
+import { getToken } from "../../utils/authStorage";
 /**
  * ArchiveCard
  * ------------------------------------------------------------
@@ -36,7 +36,7 @@ export default function ArchiveCard({ file, onUnarchive }) {
   const [removed, setRemoved] = useState(false);
 
   const authHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
