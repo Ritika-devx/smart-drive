@@ -26,7 +26,12 @@ const storageRoutes = require("./routes/storageRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "3mb" }));
 
 // ==========================
@@ -81,6 +86,7 @@ app.use((err, req, res, next) => {
 // Start Server
 // ==========================
 
-app.listen(5000, () => {
-  console.log("🚀 Server running at http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
