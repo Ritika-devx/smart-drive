@@ -1,44 +1,26 @@
-const fs = require("fs");
+
 const crypto = require("crypto");
 const prisma = require("../utils/prismaClient");
 
-/**
- * Generate a SHA-256 hash for a file on disk.
- * @param {string} filePath - absolute path to the file
- * @returns {string} hex-encoded SHA-256 hash
- */
-const generateFileHash = (filePath) => {
-  const fileBuffer = fs.readFileSync(filePath);
-  return crypto.createHash("sha256").update(fileBuffer).digest("hex");
+const generateFileHash = (fileBuffer) => {
+  return crypto
+    .createHash("sha256")
+    .update(fileBuffer)
+    .digest("hex");
 };
 
-/**
- * Check if a given hash already exists in the files table.
- * @param {string} hash
- * @param {number} [userId] - scope the check to one user's files
- * @returns {Promise<object|null>} the existing matching file record, or null
- */
 const findDuplicateByHash = async (hash, userId) => {
   if (!hash) return null;
 
-  const existing = await prisma.files.findFirst({
+  return prisma.files.findFirst({
     where: {
       hash,
       is_deleted: { not: true },
       ...(userId ? { userId } : {}),
     },
   });
-
-  return existing;
 };
 
-/**
- * Classify a file into a category based on its mimetype/extension.
- * Categories: Image, Video, PDF, Document, Other
- * @param {string} mimetype
- * @param {string} originalname
- * @returns {string}
- */
 const classifyFileType = (mimetype = "", originalname = "") => {
   const type = mimetype.toLowerCase();
   const ext = originalname.split(".").pop()?.toLowerCase() || "";
@@ -62,13 +44,6 @@ const classifyFileType = (mimetype = "", originalname = "") => {
   return "Other";
 };
 
-/**
- * Calculate how much storage is wasted by duplicate files.
- * For each hash group with more than 1 file, every file after the
- * first (oldest) one is considered "wasted" duplicate storage.
- * @param {number} [userId] - scope the calculation to one user's files
- * @returns {Promise<{ totalDuplicateFiles: number, wastedBytes: number }>}
- */
 const calculateDuplicateWaste = async (userId) => {
   const files = await prisma.files.findMany({
     where: {

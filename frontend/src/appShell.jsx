@@ -125,7 +125,7 @@ export default function AppShell() {
                 Smart Drive
               </div>
               <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.45)" }}>
-                Your data, organized
+                Your digital life, in sync
               </div>
             </div>
           </div>
