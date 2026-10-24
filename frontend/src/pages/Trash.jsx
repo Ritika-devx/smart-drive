@@ -126,6 +126,7 @@ import { useEffect, useState, useCallback } from 'react';
 import TrashCard from '../components/files/TrashCard';
 import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
+import { apiUrl } from "../utils/apiBase";
 /**
  * Trash
  * ------------------------------------------------------------
@@ -148,7 +149,7 @@ export default function Trash() {
   const loadTrash = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch('/api/trash', { headers: authHeaders() });
+      const res = await fetch(apiUrl('/api/trash'), { headers: authHeaders() });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const rawFiles = Array.isArray(json) ? json : json.files || [];
@@ -195,7 +196,7 @@ export default function Trash() {
 
     setEmptying(true);
     try {
-      const res = await fetch('/api/trash', {
+      const res = await fetch(apiUrl('/api/trash'), {
         method: 'DELETE',
         headers: authHeaders(),
       });

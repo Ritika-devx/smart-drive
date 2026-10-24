@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiRotateCcw } from 'react-icons/fi';
 import { getToken } from "../../utils/authStorage";
+import { apiUrl } from "../../utils/apiBase";
 /**
  * ArchiveCard
  * ------------------------------------------------------------
@@ -43,7 +44,7 @@ export default function ArchiveCard({ file, onUnarchive }) {
   const handleUnarchive = async () => {
     setBusy(true);
     try {
-      const res = await fetch(`/api/unarchive/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/unarchive/${file.id}`), {
         method: 'PUT',
         headers: authHeaders(),
       });

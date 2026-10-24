@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import FileCard from '../components/files/FileCard';
 import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
+import { apiUrl } from "../utils/apiBase";
 
 /**
  * Recent
@@ -24,7 +25,7 @@ export default function Recent() {
   const loadRecent = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch('/api/files', { headers: authHeaders() });
+      const res = await fetch(apiUrl('/api/files'), { headers: authHeaders() });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const rawFiles = Array.isArray(json) ? json : json.files || [];
@@ -62,7 +63,7 @@ export default function Recent() {
 
   const handleArchive = async (id) => {
     try {
-      const res = await fetch(`/api/archive/${id}`, {
+      const res = await fetch(apiUrl(`/api/archive/${id}`), {
         method: 'PATCH',
         headers: authHeaders(),
       });
