@@ -130,6 +130,7 @@ import  { useEffect, useState, useCallback, useMemo } from 'react';
 import FileCard from '../components/files/FileCard';
 import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
+import { apiUrl } from "../utils/apiBase";
 
 /**
  * Files
@@ -213,7 +214,7 @@ export default function Files() {
 
   const handleArchive = async (id) => {
     try {
-      const res = await fetch(`/api/archive/${id}`, {
+      const res = await fetch(apiUrl(`/api/archive/${id}`), {
         method: 'PATCH',
         headers: authHeaders(),
       });

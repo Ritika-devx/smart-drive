@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { FiDownload, FiArchive, FiTrash2 } from 'react-icons/fi';
 import { getToken } from "../../utils/authStorage";
+import { apiUrl } from "../../utils/apiBase";
 
 /**
  * FileCard
@@ -60,7 +61,7 @@ export default function FileCard({ file, onDelete, onArchive, onDownload }) {
     }
     setBusy(true);
     try {
-      const res = await fetch(`/api/download/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/download/${file.id}`), {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error('Could not open file');
@@ -84,7 +85,7 @@ export default function FileCard({ file, onDelete, onArchive, onDownload }) {
     // normal browser download from that blob.
     setBusy(true);
     try {
-      const res = await fetch(`/api/download/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/download/${file.id}`), {
         headers: authHeaders(),
       });
       if (!res.ok) throw new Error('Download failed');
@@ -109,7 +110,7 @@ export default function FileCard({ file, onDelete, onArchive, onDownload }) {
     if (!window.confirm(`Move "${file.name}" to trash?`)) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/delete/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/delete/${file.id}`), {
         method: 'DELETE',
         headers: authHeaders(),
       });

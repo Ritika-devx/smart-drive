@@ -10,6 +10,7 @@ import {
   Palette, Globe, Moon, Sun, FolderOpen, HardDrive, Copy,
   LogOut, Check, X, AlertCircle,
 } from 'lucide-react';
+import { apiUrl } from "../utils/apiBase";
 
 const COUNTRY_CODES = [
   { code: '+91', label: 'India' },
@@ -40,7 +41,7 @@ function InitialsAvatar({ name }) {
 // handling stays in one place instead of being duplicated per call site.
 async function callUpdateProfile(payload) {
   const token = getToken();
-  const res = await fetch('/api/auth/update-profile', {
+  const res = await fetch(apiUrl('/api/auth/update-profile'), {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -243,7 +244,7 @@ store.setItem('user', JSON.stringify(merged));
     setPwLoading(true);
     try {
       const token = getToken();
-      const res = await fetch('/api/auth/change-password', {
+      const res = await fetch(apiUrl('/api/auth/change-password'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

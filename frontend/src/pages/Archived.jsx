@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import ArchiveCard from '../components/files/ArchiveCard';
 import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
+import { apiUrl } from "../utils/apiBase";
 
 /**
  * Archived
@@ -22,7 +23,7 @@ export default function Archived() {
   const loadArchived = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch('/api/archived', { headers: authHeaders() });
+      const res = await fetch(apiUrl('/api/archived'), { headers: authHeaders() });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const rawFiles = Array.isArray(json) ? json : json.files || [];

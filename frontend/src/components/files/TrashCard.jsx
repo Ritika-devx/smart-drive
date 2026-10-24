@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getToken } from "../../utils/authStorage";
-
+import { apiUrl } from "../../utils/apiBase";
 /**
  * TrashCard
  * ------------------------------------------------------------
@@ -44,7 +44,7 @@ export default function TrashCard({ file, onRestore, onPermanentDelete }) {
   const handleRestore = async () => {
     setBusy(true);
     try {
-      const res = await fetch(`/api/restore/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/restore/${file.id}`), {
         method: 'PUT',
         headers: authHeaders(),
       });
@@ -61,7 +61,7 @@ export default function TrashCard({ file, onRestore, onPermanentDelete }) {
     if (!window.confirm(`Permanently delete "${file.name}"? This can't be undone.`)) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/trash/${file.id}`, {
+      const res = await fetch(apiUrl(`/api/trash/${file.id}`), {
         method: 'DELETE',
         headers: authHeaders(),
       });
