@@ -3,6 +3,7 @@ import UploadBox from '../components/upload/UploadBox';
 import UploadPreview from '../components/upload/UploadPreview';
 import { AlertTriangle, UploadCloud, FileText, PieChart, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { getToken } from "../utils/authStorage";
+import { apiUrl } from "../utils/apiBase";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const LARGE_FILE_THRESHOLD = 25 * 1024 * 1024;
@@ -117,7 +118,7 @@ export default function Upload({ onNavigate }) {
     formData.append('file', file, name);
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload');
+    xhr.open('POST', apiUrl('/api/upload'));
     if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
     xhr.upload.onprogress = (e) => {

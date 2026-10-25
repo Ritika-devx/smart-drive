@@ -132,6 +132,7 @@ import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
 import { apiUrl } from "../utils/apiBase";
 
+
 /**
  * Files
  * ------------------------------------------------------------
@@ -167,7 +168,7 @@ export default function Files() {
     setError(null);
     try {
       const endpoint = sortKey === 'largest' ? '/api/largest-files' : '/api/files';
-      const res = await fetch(endpoint, { headers: authHeaders() });
+      const res = await fetch(apiUrl(endpoint), { headers: authHeaders() });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const rawFiles = Array.isArray(json) ? json : json.files || [];
