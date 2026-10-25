@@ -131,7 +131,7 @@ import FileCard from '../components/files/FileCard';
 import { categorizeType } from '../utils/fileType';
 import { getToken } from "../utils/authStorage";
 import { apiUrl } from "../utils/apiBase";
-import { apiUrl } from "../utils/apiBase";
+
 
 /**
  * Files
