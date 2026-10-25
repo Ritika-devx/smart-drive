@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { getStorage } from "../services/storageService";
 import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authcontext';
 import { avatarGradient, avatarInitial } from "../utils/avatar";
 import { getToken, getStoredUser } from "../utils/authStorage";
 import {
