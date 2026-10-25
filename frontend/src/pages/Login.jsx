@@ -1249,7 +1249,7 @@ import {
 import "../styles/Login.css";
 
 import { loginUser } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authcontext";
 
 function Login() {
   const navigate = useNavigate();
